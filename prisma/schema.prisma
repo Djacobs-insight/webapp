@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                   String                 @id @default(cuid()) @map("id")
+  email                String                 @unique @map("email")
+  name                 String?                @map("name")
+  birthday             DateTime?              @map("birthday")
+  parkrunHomeEvent     String?                @map("parkrun_home_event")
+  onboardingCompleted  Boolean                @default(false) @map("onboarding_completed")
+  createdAt            DateTime               @default(now()) @map("created_at")
+  updatedAt            DateTime               @updatedAt @map("updated_at")
+  deletedAt            DateTime?              @map("deleted_at")
+  notificationPrefs    NotificationPreference?
+  familyMemberships    FamilyMember[]
+  sentInvites          Invite[]
+
+  @@map("users")
+}
+
+model NotificationPreference {
+  id                  String   @id @default(cuid()) @map("id")
+  userId              String   @unique @map("user_id")
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  familyResultPosted  Boolean  @default(true) @map("family_result_posted")
+  commentOnResult     Boolean  @default(true) @map("comment_on_result")
+  reactionOnResult    Boolean  @default(true) @map("reaction_on_result")
+  weeklySummary       Boolean  @default(true) @map("weekly_summary")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@map("notification_preferences")
+}
+
+model Family {
+  id          String         @id @default(cuid()) @map("id")
+  name        String         @map("name")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+  deletedAt   DateTime?      @map("deleted_at")
+  members     FamilyMember[]
+  invites     Invite[]
+
+  @@map("families")
+}
+
+// Many-to-many join table: user ↔ family
+model FamilyMember {
+  id        String    @id @default(cuid()) @map("id")
+  familyId  String    @map("family_id")
+  userId    String    @map("user_id")
+  role      String    @default("member") @map("role") // "admin" | "member"
+  joinedAt  DateTime  @default(now()) @map("joined_at")
+  deletedAt DateTime? @map("deleted_at")
+  family    Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([familyId, userId])
+  @@index([familyId])
+  @@index([userId])
+  @@map("family_members")
+}
+
+// Invite tokens: UUID v4, single-use, 7-day expiry
+model Invite {
+  id          String    @id @default(cuid()) @map("id")
+  token       String    @unique @map("token")   // UUID v4
+  familyId    String    @map("family_id")
+  invitedById String    @map("invited_by_id")
+  email       String?   @map("email")           // optional — pre-fill signup
+  usedAt      DateTime? @map("used_at")
+  expiresAt   DateTime  @map("expires_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  family      Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  invitedBy   User      @relation(fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([familyId])
+  @@map("invites")
+}
