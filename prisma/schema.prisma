@@ -26,6 +26,7 @@ model User {
   sentInvites          Invite[]
   results              ParkrunResult[]
   milestones           Milestone[]
+  photos               Photo[]
 
   @@map("users")
 }
@@ -149,6 +150,7 @@ model ParkrunResult {
   updatedAt       DateTime        @updatedAt @map("updated_at")
   user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   location        ParkrunLocation @relation(fields: [locationId], references: [id])
+  photos          Photo[]
 
   @@unique([userId, date])
   @@index([userId])
@@ -169,4 +171,21 @@ model Milestone {
   @@unique([userId, type, value])
   @@index([userId])
   @@map("milestones")
+}
+
+model Photo {
+  id           String        @id @default(cuid()) @map("id")
+  resultId     String        @map("result_id")
+  userId       String        @map("user_id")
+  displayUrl   String        @map("display_url")   // 800px resized
+  thumbnailUrl String        @map("thumbnail_url") // 200px thumbnail
+  originalName String?       @map("original_name")
+  deletedAt    DateTime?     @map("deleted_at")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  result       ParkrunResult @relation(fields: [resultId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([resultId])
+  @@index([userId])
+  @@map("photos")
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import { submitResult } from "@/lib/actions/results";
@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/toast-provider";
 import { useOptimisticResult } from "@/lib/optimistic-result-context";
 import { BackChevron } from "@/components/ui/back-chevron";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export default function AddResultPage() {
   const { account, loading: authLoading } = useAuth();
@@ -23,6 +24,10 @@ export default function AddResultPage() {
   const [finishTime, setFinishTime] = useState(() => searchParams.get("time") || "");
   const [timeError, setTimeError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<"idle" | "uploading" | "done">("idle");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (account && !searchParams.get("location")) {
@@ -84,11 +89,59 @@ export default function AddResultPage() {
     timeRegex.test(finishTime) &&
     !timeError;
 
+  function handlePhotoSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      showToast("error", "Only JPEG, PNG, and WebP images are allowed");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      showToast("error", "Photo must be smaller than 10 MB");
+      return;
+    }
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  }
+
+  function removePhoto() {
+    setPhotoFile(null);
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!isValid || submitting) return;
 
     setSubmitting(true);
+
+    // Upload photo first if selected
+    let photoData: { displayUrl: string; thumbnailUrl: string; originalName: string | null } | undefined;
+    if (photoFile) {
+      setUploadProgress("uploading");
+      try {
+        const formDataUpload = new FormData();
+        formDataUpload.append("file", photoFile);
+        const res = await fetch("/api/upload", { method: "POST", body: formDataUpload });
+        if (!res.ok) {
+          const err = await res.json();
+          showToast("error", err.error || "Photo upload failed");
+          setSubmitting(false);
+          setUploadProgress("idle");
+          return;
+        }
+        const json = await res.json();
+        photoData = { displayUrl: json.displayUrl, thumbnailUrl: json.thumbnailUrl, originalName: json.originalName };
+        setUploadProgress("done");
+      } catch {
+        showToast("error", "Photo upload failed");
+        setSubmitting(false);
+        setUploadProgress("idle");
+        return;
+      }
+    }
 
     // Parse finish time for optimistic display
     const [mins, secs] = finishTime.split(":").map(Number);
@@ -111,7 +164,7 @@ export default function AddResultPage() {
     router.push("/");
 
     // Fire server action in background
-    const result = await submitResult({ date, location: location.trim(), finishTime });
+    const result = await submitResult({ date, location: location.trim(), finishTime, photo: photoData });
     setSubmitting(false);
 
     if (result.success) {
@@ -204,6 +257,50 @@ export default function AddResultPage() {
             </label>
             {timeError && (
               <p className="text-red-500 text-xs mt-1">{timeError}</p>
+            )}
+          </div>
+
+          {/* Photo upload */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs text-gray-400">Photo (optional)</label>
+            {photoPreview ? (
+              <div className="relative w-full rounded-xl overflow-hidden border-2 border-gray-200">
+                <Image
+                  src={photoPreview}
+                  alt="Photo preview"
+                  width={400}
+                  height={300}
+                  className="w-full h-48 object-cover"
+                  unoptimized
+                />
+                <button
+                  type="button"
+                  onClick={removePhoto}
+                  className="absolute top-2 right-2 w-8 h-8 rounded-full bg-charcoal/70 text-white flex items-center justify-center text-lg leading-none"
+                  aria-label="Remove photo"
+                >
+                  ×
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full h-24 rounded-xl border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center gap-1 text-gray-400 hover:border-teal hover:text-teal transition-colors"
+              >
+                <span className="text-2xl">📷</span>
+                <span className="text-sm">Add a photo</span>
+              </button>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handlePhotoSelect}
+              className="hidden"
+            />
+            {uploadProgress === "uploading" && (
+              <p className="text-xs text-teal">Uploading photo…</p>
             )}
           </div>
 

@@ -153,9 +153,11 @@ function AuthenticatedDashboard({ name }: { name: string }) {
           description="Invite your family to start competing. Who'll be first to post?"
           icon={<span>🏅</span>}
           action={
-            <Button variant="secondary" className="mt-2">
-              Invite family members
-            </Button>
+            <Link href="/family">
+              <Button variant="secondary" className="mt-2">
+                Invite family members
+              </Button>
+            </Link>
           }
         />
       </section>

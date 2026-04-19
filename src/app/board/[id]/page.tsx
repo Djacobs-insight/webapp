@@ -3,14 +3,22 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getResultById } from "@/lib/actions/results";
+import { softDeletePhoto, restorePhoto } from "@/lib/actions/photos";
 import { BackChevron } from "@/components/ui/back-chevron";
+import { Lightbox } from "@/components/ui/lightbox";
+import { useToast } from "@/components/ui/toast-provider";
+import { useAuth } from "@/lib/auth/useAuth";
+import Image from "next/image";
 
 type ResultDetail = Awaited<ReturnType<typeof getResultById>>;
 
 export default function ResultDetailPage() {
   const params = useParams<{ id: string }>();
+  const { account } = useAuth();
+  const { showToast } = useToast();
   const [result, setResult] = useState<ResultDetail | undefined>(undefined);
   const [loading, setLoading] = useState(true);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (params.id) {
@@ -77,6 +85,69 @@ export default function ResultDetailPage() {
             <DetailRow label="Age-Graded %" value={`${result.ageGradedPct.toFixed(1)}%`} />
           )}
         </section>
+
+        {/* Photos */}
+        {result.photos && result.photos.length > 0 && (
+          <section className="flex flex-col gap-3">
+            <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wide">Photos</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {result.photos.map((photo, idx) => (
+                <button
+                  key={photo.id}
+                  className="rounded-xl overflow-hidden border border-gray-100 shadow-sm"
+                  onClick={() => setLightboxIndex(idx)}
+                >
+                  <Image
+                    src={photo.displayUrl}
+                    alt="Parkrun photo"
+                    width={400}
+                    height={300}
+                    className="w-full h-40 object-cover"
+                    unoptimized
+                  />
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Lightbox */}
+        {lightboxIndex !== null && result.photos?.[lightboxIndex] && (() => {
+          const photo = result.photos[lightboxIndex];
+          const isOwn = account?.id === result.photos[lightboxIndex].userId;
+          return (
+            <Lightbox
+              src={photo.displayUrl}
+              alt="Parkrun photo"
+              onClose={() => setLightboxIndex(null)}
+              onPrev={lightboxIndex > 0 ? () => setLightboxIndex(lightboxIndex - 1) : undefined}
+              onNext={lightboxIndex < result.photos.length - 1 ? () => setLightboxIndex(lightboxIndex + 1) : undefined}
+              footer={isOwn ? (
+                <div className="flex justify-end">
+                  <DeletePhotoButton
+                    onDelete={async () => {
+                      const res = await softDeletePhoto(photo.id);
+                      if (!res.success) { showToast("error", "Failed to delete"); return; }
+                      setResult((prev) => prev ? { ...prev, photos: prev.photos.filter((p) => p.id !== photo.id) } : prev);
+                      setLightboxIndex(null);
+                      showToast("warning", "Photo deleted", {
+                        durationMs: 5000,
+                        action: {
+                          label: "Undo",
+                          onClick: async () => {
+                            await restorePhoto(photo.id);
+                            const refreshed = await getResultById(params.id);
+                            if (refreshed) setResult(refreshed);
+                          },
+                        },
+                      });
+                    }}
+                  />
+                </div>
+              ) : undefined}
+            />
+          );
+        })()}
       </main>
     </div>
   );
@@ -88,5 +159,29 @@ function DetailRow({ label, value }: { label: string; value: string }) {
       <span className="text-sm text-gray-400">{label}</span>
       <span className="text-sm font-medium text-charcoal">{value}</span>
     </div>
+  );
+}
+
+function DeletePhotoButton({ onDelete }: { onDelete: () => void }) {
+  const [confirming, setConfirming] = useState(false);
+
+  if (confirming) {
+    return (
+      <button
+        className="rounded-lg border-2 border-red-500 text-red-400 px-4 py-2 text-sm font-medium hover:bg-red-500/20 transition"
+        onClick={onDelete}
+      >
+        Confirm delete
+      </button>
+    );
+  }
+
+  return (
+    <button
+      className="rounded-lg border border-red-400/50 text-red-400 px-4 py-2 text-sm font-medium hover:bg-red-500/20 transition"
+      onClick={() => setConfirming(true)}
+    >
+      🗑 Delete
+    </button>
   );
 }

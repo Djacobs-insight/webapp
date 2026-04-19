@@ -17,6 +17,11 @@ const submitResultSchema = z.object({
       const [mins, secs] = t.split(":").map(Number);
       return secs < 60 && mins >= 0 && mins + secs > 0;
     }, "Invalid time"),
+  photo: z.object({
+    displayUrl: z.string(),
+    thumbnailUrl: z.string(),
+    originalName: z.string().nullable(),
+  }).optional(),
 });
 
 export type MilestoneInfo = {
@@ -41,6 +46,7 @@ export async function submitResult(formData: {
   date: string;
   location: string;
   finishTime: string;
+  photo?: { displayUrl: string; thumbnailUrl: string; originalName: string | null };
 }): Promise<SubmitResultResult> {
   const session = await auth();
   if (!session?.user?.id) {
@@ -111,6 +117,19 @@ export async function submitResult(formData: {
       ageGradedPct,
     },
   });
+
+  // Attach photo if provided
+  if (parsed.data.photo) {
+    await prisma.photo.create({
+      data: {
+        resultId: result.id,
+        userId,
+        displayUrl: parsed.data.photo.displayUrl,
+        thumbnailUrl: parsed.data.photo.thumbnailUrl,
+        originalName: parsed.data.photo.originalName,
+      },
+    });
+  }
 
   // Detect milestones
   const milestones = await detectMilestones(userId, result.id, finishTimeSecs, ageGradedPct);
@@ -462,6 +481,11 @@ export async function getResultById(resultId: string) {
     include: {
       location: true,
       user: { select: { id: true, name: true, birthday: true, gender: true } },
+      photos: {
+        where: { deletedAt: null },
+        orderBy: { createdAt: "desc" },
+        select: { id: true, displayUrl: true, thumbnailUrl: true, userId: true },
+      },
     },
   });
   if (!result) return null;
@@ -479,6 +503,7 @@ export async function getResultById(resultId: string) {
     location: result.location.name,
     finishTimeSecs: result.finishTimeSecs,
     ageGradedPct: result.ageGradedPct,
+    photos: result.photos,
   };
 }
 

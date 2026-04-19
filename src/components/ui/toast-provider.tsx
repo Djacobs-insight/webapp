@@ -7,11 +7,12 @@ export interface Toast {
   id: string;
   type: ToastType;
   message: string;
+  action?: { label: string; onClick: () => void };
 }
 
 interface ToastContextValue {
   toasts: Toast[];
-  showToast: (type: ToastType, message: string) => void;
+  showToast: (type: ToastType, message: string, opts?: { action?: Toast["action"]; durationMs?: number }) => void;
   dismissToast: (id: string) => void;
 }
 
@@ -26,10 +27,10 @@ export const useToast = () => {
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const showToast = useCallback((type: ToastType, message: string) => {
+  const showToast = useCallback((type: ToastType, message: string, opts?: { action?: Toast["action"]; durationMs?: number }) => {
     const id = Math.random().toString(36).slice(2);
-    setToasts((prev) => [...prev, { id, type, message }]);
-    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000);
+    setToasts((prev) => [...prev, { id, type, message, action: opts?.action }]);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), opts?.durationMs ?? 4000);
   }, []);
 
   const dismissToast = useCallback((id: string) => {
@@ -57,7 +58,19 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             onClick={() => dismissToast(toast.id)}
             onKeyDown={(e) => (e.key === "Escape" ? dismissToast(toast.id) : undefined)}
           >
-            {toast.message}
+            <span>{toast.message}</span>
+            {toast.action && (
+              <button
+                className="ml-3 underline font-bold hover:opacity-80"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toast.action!.onClick();
+                  dismissToast(toast.id);
+                }}
+              >
+                {toast.action.label}
+              </button>
+            )}
           </div>
         ))}
       </div>
