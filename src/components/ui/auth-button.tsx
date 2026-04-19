@@ -16,7 +16,7 @@ export function AuthButton() {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm">{account.username}</span>
+      <span className="text-sm">{account.email}</span>
       <Button onClick={logout} variant="ghost">
         Sign Out
       </Button>

@@ -1,7 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { saveOnboardingProfile } from "@/lib/actions/profile";
 
 const STORAGE_KEY = "sm_onboarding_completed";
 
@@ -18,13 +19,14 @@ const parkrunSchema = z.object({
   parkrunHomeEvent: z.string().min(2, "Please enter your home parkrun event"),
 });
 
-type Step = "welcome" | "name" | "birthday" | "parkrun" | "done";
+type Step = "welcome" | "name" | "birthday" | "gender" | "parkrun" | "done";
 
-const STEPS: Step[] = ["welcome", "name", "birthday", "parkrun", "done"];
+const STEPS: Step[] = ["welcome", "name", "birthday", "gender", "parkrun", "done"];
 
 interface WizardData {
   name: string;
   birthday: string;
+  gender: string;
   parkrunHomeEvent: string;
 }
 
@@ -39,7 +41,6 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const stepIndex = STEPS.indexOf(step);
-  const totalSteps = STEPS.length - 2; // exclude welcome + done from count
 
   const skip = () => {
     if (typeof window !== "undefined") {
@@ -72,6 +73,12 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     advance();
   };
 
+  const handleGender = (value: string) => {
+    setData((d) => ({ ...d, gender: value }));
+    setErrors({});
+    advance();
+  };
+
   const handleParkrun = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const result = parkrunSchema.safeParse({ parkrunHomeEvent: data.parkrunHomeEvent ?? "" });
@@ -83,10 +90,11 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     advance();
   };
 
-  const finish = () => {
+  const finish = async () => {
     if (typeof window !== "undefined") {
       localStorage.setItem(STORAGE_KEY, "true");
     }
+    await saveOnboardingProfile(data);
     onComplete(data);
   };
 
@@ -113,7 +121,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         {/* Progress dots */}
         {step !== "welcome" && step !== "done" && (
           <div className="flex gap-2 justify-center">
-            {["name", "birthday", "parkrun"].map((s, i) => (
+            {["name", "birthday", "gender", "parkrun"].map((s, i) => (
               <span
                 key={s}
                 className={`w-2 h-2 rounded-full transition-colors ${
@@ -146,6 +154,13 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             onSubmit={handleBirthday}
           />
         )}
+        {step === "gender" && (
+          <GenderStep
+            value={data.gender ?? ""}
+            onSelect={handleGender}
+            onSkip={advance}
+          />
+        )}
         {step === "parkrun" && (
           <ParkrunStep
             value={data.parkrunHomeEvent ?? ""}
@@ -168,7 +183,7 @@ function WelcomeStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => voi
       <span className="text-6xl">👟</span>
       <h2 className="text-2xl font-bold text-charcoal">Welcome to Saturday Morning!</h2>
       <p className="text-gray-500 text-base">
-        Let&apos;s get you set up in 3 quick steps so age-grading works perfectly for you.
+        Let&apos;s get you set up in 4 quick steps so age-grading works perfectly for you.
       </p>
       <Button variant="primary" onClick={onNext} className="w-full">
         Let&apos;s go →
@@ -216,6 +231,22 @@ function BirthdayStep({
 }: {
   value: string; error?: string; onChange: (v: string) => void; onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
+  // value is yyyy-mm-dd; split into parts for display
+  const parts = value ? value.split("-") : ["", "", ""];
+  const [yyyy, mm, dd] = parts;
+
+  const update = (d: string, m: string, y: string) => {
+    const day = d.replace(/\D/g, "").slice(0, 2);
+    const month = m.replace(/\D/g, "").slice(0, 2);
+    const year = y.replace(/\D/g, "").slice(0, 4);
+    if (day && month && year.length === 4) {
+      onChange(`${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`);
+    } else {
+      // Store partial as yyyy-mm-dd with empties so we can reconstruct
+      onChange(`${year || ""}-${month || ""}-${day || ""}`);
+    }
+  };
+
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5">
       <div className="flex flex-col gap-1 text-center">
@@ -224,13 +255,38 @@ function BirthdayStep({
         <p className="text-sm text-gray-500">We use this to calculate your age-graded score — it&apos;s what makes the competition fair!</p>
       </div>
       <div className="flex flex-col gap-1">
-        <input
-          type="date"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          max={new Date(Date.now() - 18 * 365.25 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]}
-          className="w-full rounded-xl border-2 border-gray-200 focus:border-coral outline-none px-4 py-3 text-base text-charcoal bg-white transition"
-        />
+        <div className="flex gap-2 items-center">
+          <input
+            type="text"
+            inputMode="numeric"
+            placeholder="DD"
+            value={dd}
+            onChange={(e) => update(e.target.value, mm, yyyy)}
+            maxLength={2}
+            className="w-16 text-center rounded-xl border-2 border-gray-200 focus:border-coral outline-none px-2 py-3 text-base text-charcoal bg-white transition"
+            autoFocus
+          />
+          <span className="text-gray-400 text-lg">/</span>
+          <input
+            type="text"
+            inputMode="numeric"
+            placeholder="MM"
+            value={mm}
+            onChange={(e) => update(dd, e.target.value, yyyy)}
+            maxLength={2}
+            className="w-16 text-center rounded-xl border-2 border-gray-200 focus:border-coral outline-none px-2 py-3 text-base text-charcoal bg-white transition"
+          />
+          <span className="text-gray-400 text-lg">/</span>
+          <input
+            type="text"
+            inputMode="numeric"
+            placeholder="YYYY"
+            value={yyyy}
+            onChange={(e) => update(dd, mm, e.target.value)}
+            maxLength={4}
+            className="w-24 text-center rounded-xl border-2 border-gray-200 focus:border-coral outline-none px-2 py-3 text-base text-charcoal bg-white transition"
+          />
+        </div>
         {error && <p className="text-sm text-red-500">{error}</p>}
       </div>
       <Button type="submit" variant="primary" className="w-full">
@@ -267,6 +323,45 @@ function ParkrunStep({
         Continue →
       </Button>
     </form>
+  );
+}
+
+function GenderStep({
+  value, onSelect, onSkip,
+}: {
+  value: string; onSelect: (v: string) => void; onSkip: () => void;
+}) {
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-1 text-center">
+        <span className="text-4xl mb-1">⚡</span>
+        <h2 className="text-xl font-bold text-charcoal">Age-grading category</h2>
+        <p className="text-sm text-gray-500">WMA age-grading uses male/female categories to calculate your score fairly.</p>
+      </div>
+      <div className="flex flex-col gap-3">
+        <button
+          type="button"
+          onClick={() => onSelect("M")}
+          className={`w-full rounded-xl border-2 px-4 py-3 text-base font-medium transition ${
+            value === "M" ? "border-coral bg-coral/10 text-coral" : "border-gray-200 text-charcoal hover:border-gray-300"
+          }`}
+        >
+          Male
+        </button>
+        <button
+          type="button"
+          onClick={() => onSelect("F")}
+          className={`w-full rounded-xl border-2 px-4 py-3 text-base font-medium transition ${
+            value === "F" ? "border-coral bg-coral/10 text-coral" : "border-gray-200 text-charcoal hover:border-gray-300"
+          }`}
+        >
+          Female
+        </button>
+      </div>
+      <button onClick={onSkip} className="text-sm text-gray-400 hover:text-gray-600 transition">
+        Skip — I&apos;ll set this later
+      </button>
+    </div>
   );
 }
 

@@ -19,7 +19,7 @@ export default function CreateFamilyPage() {
     setError(null);
     setLoading(true);
 
-    const result = await createFamily({ name, userId: account.localAccountId });
+    const result = await createFamily({ name });
 
     setLoading(false);
     if (!result.success) {

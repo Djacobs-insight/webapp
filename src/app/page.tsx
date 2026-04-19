@@ -1,7 +1,11 @@
 "use client";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/useAuth";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { getRecentResults, getDashboardSummary } from "@/lib/actions/results";
+import { useOptimisticResult } from "@/lib/optimistic-result-context";
 
 export default function DashboardPage() {
   const { account, loading, login } = useAuth();
@@ -18,7 +22,7 @@ export default function DashboardPage() {
     return <LandingScreen onSignIn={login} />;
   }
 
-  return <AuthenticatedDashboard name={account.name ?? account.username} />;
+  return <AuthenticatedDashboard name={account.name ?? account.email ?? "Runner"} />;
 }
 
 function LandingScreen({ onSignIn }: { onSignIn: () => void }) {
@@ -59,6 +63,34 @@ function LandingScreen({ onSignIn }: { onSignIn: () => void }) {
 
 function AuthenticatedDashboard({ name }: { name: string }) {
   const firstName = name.split(" ")[0];
+  const [results, setResults] = useState<Awaited<ReturnType<typeof getRecentResults>>>([]);
+  const [summary, setSummary] = useState<{ personalBest: string; streak: string }>({ personalBest: "—", streak: "—" });
+  const { optimisticResult, clearOptimistic } = useOptimisticResult();
+
+  const refreshResults = () => {
+    getDashboardSummary().then(setSummary);
+    return getRecentResults(5).then(setResults);
+  };
+
+  useEffect(() => {
+    refreshResults();
+  }, []);
+
+  // When optimistic result becomes non-pending (server responded), refresh real data
+  useEffect(() => {
+    if (optimisticResult && !optimisticResult.pending) {
+      refreshResults().then(clearOptimistic);
+    }
+  }, [optimisticResult, clearOptimistic]);
+
+  // Build display list: prepend optimistic result if pending
+  const displayResults = optimisticResult?.pending
+    ? [optimisticResult, ...results]
+    : results;
+
+  useEffect(() => {
+    getRecentResults(5).then(setResults);
+  }, []);
 
   return (
     <main className="flex flex-col flex-1 w-full max-w-xl mx-auto px-4 py-6 gap-6">
@@ -72,10 +104,46 @@ function AuthenticatedDashboard({ name }: { name: string }) {
 
       {/* Quick action — enter result */}
       <section>
-        <Button variant="primary" className="w-full text-xl py-5">
+        <Link
+          href="/results/new"
+          className="flex items-center justify-center w-full rounded-full font-bold bg-coral text-warm-white h-14 px-8 text-xl shadow-md hover:bg-coral/90 transition focus:outline-none focus:ring-2 focus:ring-teal"
+        >
           🏃 Enter today&apos;s result
-        </Button>
+        </Link>
       </section>
+
+      {/* Recent results */}
+      {displayResults.length > 0 && (
+        <section className="rounded-2xl border border-gray-100 bg-white shadow-sm p-4">
+          <h2 className="text-lg font-bold text-charcoal mb-3">Recent Results</h2>
+          <ul className="flex flex-col gap-2">
+            {displayResults.map((r) => {
+              const isPending = "pending" in r && (r as { pending?: boolean }).pending === true;
+              return (
+                <li key={r.id} className={`flex items-center justify-between py-2 border-b border-gray-50 last:border-0 ${isPending ? "opacity-60" : ""}`}>
+                  <div>
+                    <p className="text-sm font-medium text-charcoal">{r.location}</p>
+                    <p className="text-xs text-gray-400">{r.date}</p>
+                  </div>
+                  <div className="text-right flex items-center gap-2">
+                    {isPending && (
+                      <div className="w-4 h-4 rounded-full border-2 border-coral border-t-transparent animate-spin" />
+                    )}
+                    <div>
+                      <p className="text-lg font-bold text-teal tabular-nums">
+                        {Math.floor(r.finishTimeSecs / 60)}:{String(r.finishTimeSecs % 60).padStart(2, "0")}
+                      </p>
+                      {r.ageGradedPct != null && (
+                        <p className="text-xs text-gray-400">{r.ageGradedPct.toFixed(1)}% AG</p>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       {/* Family leaderboard card */}
       <section className="rounded-2xl border border-gray-100 bg-white shadow-sm p-4">
@@ -94,8 +162,8 @@ function AuthenticatedDashboard({ name }: { name: string }) {
 
       {/* Summary cards row */}
       <section className="grid grid-cols-2 gap-3">
-        <SummaryCard label="Your streak" value="—" emoji="🔥" />
-        <SummaryCard label="Personal best" value="—" emoji="⚡" />
+        <SummaryCard label="Your streak" value={summary.streak} emoji="🔥" />
+        <SummaryCard label="Personal best" value={summary.personalBest} emoji="⚡" />
       </section>
     </main>
   );

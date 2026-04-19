@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import { getInviteByToken, acceptInvite } from "@/lib/actions/family";
@@ -15,10 +15,10 @@ type InviteInfo = {
   used: boolean;
 };
 
-export default function InvitePage({ params }: { params: { token: string } }) {
+export default function InvitePage({ params }: { params: Promise<{ token: string }> }) {
   const { account, loading: authLoading } = useAuth();
   const router = useRouter();
-  const { token } = params;
+  const { token } = use(params);
 
   const [inviteInfo, setInviteInfo] = useState<InviteInfo | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -62,7 +62,7 @@ export default function InvitePage({ params }: { params: { token: string } }) {
 
     setJoining(true);
     setJoinError(null);
-    const result = await acceptInvite({ token, userId: account.localAccountId });
+    const result = await acceptInvite({ token });
     setJoining(false);
 
     if (!result.success) {

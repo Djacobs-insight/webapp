@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { BackChevron } from "@/components/ui/back-chevron";
 import { useToast } from "@/components/ui/toast-provider";
 import { z } from "zod";
@@ -57,14 +57,16 @@ function loadPrefs(): NotificationPrefs {
 }
 
 export default function NotificationPreferencesPage() {
-  const [prefs, setPrefs] = useState<NotificationPrefs>(DEFAULTS);
-  const [mounted, setMounted] = useState(false);
+  const [prefs, setPrefs] = useState<NotificationPrefs>(() => {
+    if (typeof window === "undefined") return DEFAULTS;
+    return loadPrefs();
+  });
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
   const { showToast } = useToast();
-
-  useEffect(() => {
-    setPrefs(loadPrefs());
-    setMounted(true);
-  }, []);
 
   const toggle = (key: keyof NotificationPrefs) => {
     const updated = { ...prefs, [key]: !prefs[key] };

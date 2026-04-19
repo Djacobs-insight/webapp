@@ -2,12 +2,12 @@
 
 import { prisma } from "../prisma";
 import { isFamilyAtLimit, FREE_MEMBER_LIMIT } from "../freemium";
+import { auth } from "../auth/auth";
 import { randomUUID } from "crypto";
 import { z } from "zod";
 
 const createFamilySchema = z.object({
   name: z.string().min(2, "Family name must be at least 2 characters").max(60),
-  userId: z.string().min(1),
 });
 
 export type CreateFamilyResult =
@@ -20,14 +20,19 @@ export type CreateFamilyResult =
  */
 export async function createFamily(formData: {
   name: string;
-  userId: string;
 }): Promise<CreateFamilyResult> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "Not authenticated." };
+  }
+  const userId = session.user.id;
+
   const parsed = createFamilySchema.safeParse(formData);
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0].message };
   }
 
-  const { name, userId } = parsed.data;
+  const { name } = parsed.data;
 
   // MVP: one family per user
   const existing = await prisma.familyMember.findFirst({
@@ -62,11 +67,15 @@ export type CreateInviteResult =
  */
 export async function createInvite(formData: {
   familyId: string;
-  invitedById: string;
   email?: string;
   appUrl: string;
 }): Promise<CreateInviteResult> {
-  const { familyId, invitedById, email, appUrl } = formData;
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "Not authenticated." };
+  }
+  const { familyId, email, appUrl } = formData;
+  const invitedById = session.user.id;
 
   const atLimit = await isFamilyAtLimit(familyId);
   if (atLimit) {
@@ -99,9 +108,13 @@ export type AcceptInviteResult =
  */
 export async function acceptInvite(formData: {
   token: string;
-  userId: string;
 }): Promise<AcceptInviteResult> {
-  const { token, userId } = formData;
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "Not authenticated." };
+  }
+  const { token } = formData;
+  const userId = session.user.id;
 
   const invite = await prisma.invite.findUnique({
     where: { token },
@@ -148,9 +161,13 @@ export type RemoveMemberResult =
  */
 export async function removeMember(formData: {
   familyMemberId: string;
-  requestingUserId: string;
 }): Promise<RemoveMemberResult> {
-  const { familyMemberId, requestingUserId } = formData;
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "Not authenticated." };
+  }
+  const { familyMemberId } = formData;
+  const requestingUserId = session.user.id;
 
   const membership = await prisma.familyMember.findUnique({
     where: { id: familyMemberId },
@@ -180,7 +197,11 @@ export async function removeMember(formData: {
 
 // ── Read helpers ──────────────────────────────────────────────────────────────
 
-export async function getFamilyForUser(userId: string) {
+export async function getFamilyForUser() {
+  const session = await auth();
+  if (!session?.user?.id) return null;
+  const userId = session.user.id;
+
   const membership = await prisma.familyMember.findFirst({
     where: { userId, deletedAt: null },
     include: {

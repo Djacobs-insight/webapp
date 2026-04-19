@@ -4,7 +4,7 @@ import Link from "next/link";
 export const BackChevron: React.FC<{ href?: string }> = ({ href = "/" }) => (
   <Link
     href={href}
-    className="absolute left-4 top-4 flex items-center text-teal hover:text-coral transition md:hidden"
+    className="flex items-center text-teal hover:text-coral transition md:hidden px-4 pt-4 pb-1 self-start"
     aria-label="Back"
   >
     <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
