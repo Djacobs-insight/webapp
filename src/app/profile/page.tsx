@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { BackChevron } from "@/components/ui/back-chevron";
 import { AuthButton } from "@/components/ui/auth-button";
+import { BadgeGrid } from "@/components/ui/badge-grid";
 
 export default function ProfilePage() {
   return (
@@ -14,6 +15,12 @@ export default function ProfilePage() {
 
         <div className="rounded-2xl bg-white border border-gray-100 shadow-sm p-5 flex flex-col gap-4">
           <AuthButton />
+        </div>
+
+        {/* Badges section */}
+        <div className="rounded-2xl bg-white border border-gray-100 shadow-sm p-5">
+          <h2 className="text-lg font-bold text-charcoal mb-4">Badges</h2>
+          <BadgeGrid />
         </div>
 
         <nav className="flex flex-col gap-2">
@@ -44,6 +51,13 @@ export default function ProfilePage() {
           >
             <span className="text-xl">📷</span>
             Photo gallery
+          </Link>
+          <Link
+            href="/challenges"
+            className="flex items-center gap-3 rounded-2xl bg-white border border-gray-100 shadow-sm px-5 py-4 text-charcoal font-medium hover:bg-gray-50 transition"
+          >
+            <span className="text-xl">🏆</span>
+            Challenges
           </Link>
           <Link
             href="/profile/settings"

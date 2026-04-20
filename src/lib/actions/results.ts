@@ -4,6 +4,8 @@ import { prisma } from "../prisma";
 import { auth } from "../auth/auth";
 import { z } from "zod";
 import { calculateAgeGradedPercentage, calculateAgeOnDate } from "../age-grading";
+import { detectBadges } from "./badges";
+import { resolveExpiredChallenges } from "./challenges";
 
 const timeRegex = /^\d{1,3}:\d{2}$/;
 
@@ -31,7 +33,7 @@ export type MilestoneInfo = {
 };
 
 export type SubmitResultResult =
-  | { success: true; resultId: string; ageGradedPct: number | null; milestones: MilestoneInfo[] }
+  | { success: true; resultId: string; ageGradedPct: number | null; milestones: MilestoneInfo[]; badges: { key: string; name: string; label: string }[] }
   | { success: false; error: string };
 
 const RUN_COUNT_MILESTONES = [10, 25, 50, 100];
@@ -134,7 +136,13 @@ export async function submitResult(formData: {
   // Detect milestones
   const milestones = await detectMilestones(userId, result.id, finishTimeSecs, ageGradedPct);
 
-  return { success: true, resultId: result.id, ageGradedPct, milestones };
+  // Detect badges
+  const badges = await detectBadges(userId, result.id, finishTimeSecs, ageGradedPct);
+
+  // Resolve any expired challenges
+  await resolveExpiredChallenges();
+
+  return { success: true, resultId: result.id, ageGradedPct, milestones, badges };
 }
 
 async function detectMilestones(

@@ -8,6 +8,9 @@ import { BackChevron } from "@/components/ui/back-chevron";
 import { Lightbox } from "@/components/ui/lightbox";
 import { useToast } from "@/components/ui/toast-provider";
 import { useAuth } from "@/lib/auth/useAuth";
+import { CommentSection } from "@/components/ui/comment-section";
+import { ReactionBar } from "@/components/ui/reaction-bar";
+import { CheerButton } from "@/components/ui/cheer-button";
 import Image from "next/image";
 
 type ResultDetail = Awaited<ReturnType<typeof getResultById>>;
@@ -86,6 +89,12 @@ export default function ResultDetailPage() {
           )}
         </section>
 
+        {/* Reactions & Cheer */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <CheerButton resultId={result.id} />
+          <ReactionBar resultId={result.id} />
+        </div>
+
         {/* Photos */}
         {result.photos && result.photos.length > 0 && (
           <section className="flex flex-col gap-3">
@@ -110,6 +119,9 @@ export default function ResultDetailPage() {
             </div>
           </section>
         )}
+
+        {/* Comments */}
+        <CommentSection resultId={result.id} />
 
         {/* Lightbox */}
         {lightboxIndex !== null && result.photos?.[lightboxIndex] && (() => {

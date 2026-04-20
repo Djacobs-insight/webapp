@@ -174,8 +174,12 @@ export default function AddResultPage() {
         ? `Result saved! Age-graded: ${result.ageGradedPct.toFixed(1)}%`
         : "Result saved!";
       showToast("success", msg);
-      if (result.milestones.length > 0) {
-        setCelebrationMilestones(result.milestones);
+      if (result.milestones.length > 0 || result.badges.length > 0) {
+        const allCelebrations = [
+          ...result.milestones,
+          ...result.badges.map((b) => ({ type: "badge", value: b.key, label: b.label })),
+        ];
+        setCelebrationMilestones(allCelebrations);
       }
     } else {
       // Rollback: clear optimistic, show error, navigate back to form with data

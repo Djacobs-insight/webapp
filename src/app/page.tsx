@@ -167,6 +167,25 @@ function AuthenticatedDashboard({ name }: { name: string }) {
         <SummaryCard label="Your streak" value={summary.streak} emoji="🔥" />
         <SummaryCard label="Personal best" value={summary.personalBest} emoji="⚡" />
       </section>
+
+      {/* Activity feed link */}
+      <section>
+        <Link
+          href="/activity"
+          className="flex items-center justify-between w-full rounded-2xl border border-gray-100 bg-white shadow-sm p-4 hover:bg-gray-50 transition"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">📣</span>
+            <div>
+              <p className="text-sm font-bold text-charcoal">Activity Feed</p>
+              <p className="text-xs text-gray-400">See what your family has been up to</p>
+            </div>
+          </div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </Link>
+      </section>
     </main>
   );
 }
