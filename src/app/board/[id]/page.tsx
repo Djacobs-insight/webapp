@@ -35,7 +35,7 @@ export default function ResultDetailPage() {
   if (loading) {
     return (
       <div className="flex flex-col flex-1">
-        <BackChevron href="/board" />
+        <BackChevron />
         <div className="flex flex-1 items-center justify-center">
           <div className="w-10 h-10 rounded-full border-4 border-coral border-t-transparent animate-spin" aria-label="Loading" />
         </div>
@@ -46,7 +46,7 @@ export default function ResultDetailPage() {
   if (!result) {
     return (
       <div className="flex flex-col flex-1">
-        <BackChevron href="/board" />
+        <BackChevron />
         <main className="flex flex-col flex-1 items-center justify-center px-6 text-center">
           <span className="text-5xl mb-4">🔍</span>
           <h1 className="text-2xl font-bold text-charcoal mb-2">Result not found</h1>
@@ -61,7 +61,7 @@ export default function ResultDetailPage() {
 
   return (
     <div className="flex flex-col flex-1">
-      <BackChevron href="/board" />
+      <BackChevron />
       <main className="flex flex-col flex-1 w-full max-w-xl mx-auto px-4 py-6 gap-6">
         {/* Header */}
         <div className="text-center">

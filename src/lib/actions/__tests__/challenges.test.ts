@@ -20,7 +20,6 @@ import {
   createChallenge,
   respondToChallenge,
   getChallenges,
-  getChallengeDetail,
   resolveExpiredChallenges,
   getFamilyMembers,
 } from "../challenges";

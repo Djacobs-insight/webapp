@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import { submitResult } from "@/lib/actions/results";
@@ -11,7 +11,7 @@ import { BackChevron } from "@/components/ui/back-chevron";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
-export default function AddResultPage() {
+function AddResultPageInner() {
   const { account, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -319,5 +319,13 @@ export default function AddResultPage() {
         </form>
       </main>
     </div>
+  );
+}
+
+export default function AddResultPage() {
+  return (
+    <Suspense>
+      <AddResultPageInner />
+    </Suspense>
   );
 }

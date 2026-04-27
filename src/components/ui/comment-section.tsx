@@ -23,7 +23,7 @@ export function CommentSection({ resultId }: { resultId: string }) {
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [optimisticComments, addOptimistic] = useOptimistic(

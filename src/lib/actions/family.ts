@@ -77,6 +77,21 @@ export async function createInvite(formData: {
   const { familyId, email, appUrl } = formData;
   const invitedById = session.user.id;
 
+  // SECURITY: Verify the caller is an admin or member of this family (IDOR fix)
+  const membership = await prisma.familyMember.findFirst({
+    where: {
+      familyId,
+      userId: invitedById,
+      deletedAt: null,
+    },
+  });
+  if (!membership) {
+    return {
+      success: false,
+      error: "You are not a member of this family.",
+    };
+  }
+
   const atLimit = await isFamilyAtLimit(familyId);
   if (atLimit) {
     return {

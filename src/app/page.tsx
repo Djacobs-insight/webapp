@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/useAuth";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { getRecentResults, getDashboardSummary } from "@/lib/actions/results";
+import { getRecentResults, getDashboardSummary, getFamilyResults } from "@/lib/actions/results";
+import { getActivityFeed, type ActivityItem } from "@/lib/actions/cheers";
 import { useOptimisticResult } from "@/lib/optimistic-result-context";
 
 export default function DashboardPage() {
@@ -64,11 +65,15 @@ function LandingScreen({ onSignIn }: { onSignIn: () => void }) {
 function AuthenticatedDashboard({ name }: { name: string }) {
   const firstName = name.split(" ")[0];
   const [results, setResults] = useState<Awaited<ReturnType<typeof getRecentResults>>>([]);
+  const [familyResults, setFamilyResults] = useState<Awaited<ReturnType<typeof getFamilyResults>>>({ results: [], members: [] });
+  const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [summary, setSummary] = useState<{ personalBest: string; streak: string }>({ personalBest: "—", streak: "—" });
   const { optimisticResult, clearOptimistic } = useOptimisticResult();
 
   const refreshResults = () => {
     getDashboardSummary().then(setSummary);
+    getActivityFeed().then(setActivity);
+    getFamilyResults().then(setFamilyResults);
     return getRecentResults(5).then(setResults);
   };
 
@@ -88,114 +93,198 @@ function AuthenticatedDashboard({ name }: { name: string }) {
     ? [optimisticResult, ...results]
     : results;
 
-  useEffect(() => {
-    getRecentResults(5).then(setResults);
-  }, []);
+  // Merge personal results + family activity into a unified feed
+  type FeedItem =
+    | { kind: "result"; id: string; runnerName: string; location: string; date: string; finishTimeSecs: number; ageGradedPct: number | null; isMine: boolean; isPending: boolean }
+    | { kind: "activity"; id: string; actorName: string; action: string; target: string; resultId?: string; createdAt: string; type: ActivityItem["type"] };
+
+  const feedItems: FeedItem[] = [];
+
+  // Add family results (includes yours)
+  for (const r of familyResults.results) {
+    feedItems.push({
+      kind: "result",
+      id: r.id,
+      runnerName: r.runnerName,
+      location: r.location,
+      date: r.date,
+      finishTimeSecs: r.finishTimeSecs,
+      ageGradedPct: r.ageGradedPct,
+      isMine: false, // family results
+      isPending: false,
+    });
+  }
+
+  // If no family results, fall back to personal results
+  if (familyResults.results.length === 0) {
+    for (const r of displayResults) {
+      const isPending = "pending" in r && (r as { pending?: boolean }).pending === true;
+      feedItems.push({
+        kind: "result",
+        id: r.id,
+        runnerName: firstName,
+        location: r.location,
+        date: r.date,
+        finishTimeSecs: r.finishTimeSecs,
+        ageGradedPct: r.ageGradedPct,
+        isMine: true,
+        isPending,
+      });
+    }
+  }
+
+  // Add activity items (comments, reactions, cheers, milestones — not results, already shown)
+  for (const a of activity.filter((a) => a.type !== "result")) {
+    feedItems.push({
+      kind: "activity",
+      id: a.id,
+      actorName: a.actorName,
+      action: a.action,
+      target: a.target,
+      resultId: a.resultId,
+      createdAt: a.createdAt,
+      type: a.type,
+    });
+  }
+
+  const ACTIVITY_EMOJI: Record<string, string> = {
+    comment: "💬",
+    reaction: "👏",
+    cheer: "📣",
+    milestone: "🏅",
+  };
 
   return (
-    <main className="flex flex-col flex-1 w-full max-w-xl mx-auto px-4 py-6 gap-6">
-      {/* Welcome header */}
-      <section>
-        <p className="text-sm text-gray-500 uppercase tracking-wide font-medium">Saturday Morning</p>
-        <h1 className="text-2xl font-bold text-charcoal mt-1">
-          Welcome back, {firstName}! 👋
-        </h1>
-      </section>
+    <main className="flex flex-col flex-1 w-full max-w-xl mx-auto px-4 pt-4 pb-20 gap-0">
+      {/* Sticky header with stats ribbon */}
+      <header className="sticky top-0 z-10 bg-warm-white pb-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs text-gray-400 uppercase tracking-wide font-medium">Saturday Morning</p>
+            <h1 className="text-xl font-bold text-charcoal">
+              {firstName}&apos;s Feed 👋
+            </h1>
+          </div>
+          <Link
+            href="/results/new"
+            className="flex items-center justify-center w-11 h-11 rounded-full bg-coral text-warm-white shadow-md hover:bg-coral/90 transition focus:outline-none focus:ring-2 focus:ring-teal"
+            aria-label="Enter today's result"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          </Link>
+        </div>
 
-      {/* Quick action — enter result */}
-      <section>
-        <Link
-          href="/results/new"
-          className="flex items-center justify-center w-full rounded-full font-bold bg-coral text-warm-white h-14 px-8 text-xl shadow-md hover:bg-coral/90 transition focus:outline-none focus:ring-2 focus:ring-teal"
-        >
-          🏃 Enter today&apos;s result
-        </Link>
-      </section>
-
-      {/* Recent results */}
-      {displayResults.length > 0 && (
-        <section className="rounded-2xl border border-gray-100 bg-white shadow-sm p-4">
-          <h2 className="text-lg font-bold text-charcoal mb-3">Recent Results</h2>
-          <ul className="flex flex-col gap-2">
-            {displayResults.map((r) => {
-              const isPending = "pending" in r && (r as { pending?: boolean }).pending === true;
-              return (
-                <li key={r.id} className={`flex items-center justify-between py-2 border-b border-gray-50 last:border-0 ${isPending ? "opacity-60" : ""}`}>
-                  <div>
-                    <p className="text-sm font-medium text-charcoal">{r.location}</p>
-                    <p className="text-xs text-gray-400">{r.date}</p>
-                  </div>
-                  <div className="text-right flex items-center gap-2">
-                    {isPending && (
-                      <div className="w-4 h-4 rounded-full border-2 border-coral border-t-transparent animate-spin" />
-                    )}
-                    <div>
-                      <p className="text-lg font-bold text-teal tabular-nums">
-                        {Math.floor(r.finishTimeSecs / 60)}:{String(r.finishTimeSecs % 60).padStart(2, "0")}
-                      </p>
-                      {r.ageGradedPct != null && (
-                        <p className="text-xs text-gray-400">{r.ageGradedPct.toFixed(1)}% AG</p>
-                      )}
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      )}
-
-      {/* Family leaderboard card */}
-      <section className="rounded-2xl border border-gray-100 bg-white shadow-sm p-4">
-        <h2 className="text-lg font-bold text-charcoal mb-3">Family Leaderboard</h2>
-        <EmptyState
-          title="Saturday's coming!"
-          description="Invite your family to start competing. Who'll be first to post?"
-          icon={<span>🏅</span>}
-          action={
-            <Link href="/family">
-              <Button variant="secondary" className="mt-2">
-                Invite family members
-              </Button>
-            </Link>
-          }
-        />
-      </section>
-
-      {/* Summary cards row */}
-      <section className="grid grid-cols-2 gap-3">
-        <SummaryCard label="Your streak" value={summary.streak} emoji="🔥" />
-        <SummaryCard label="Personal best" value={summary.personalBest} emoji="⚡" />
-      </section>
-
-      {/* Activity feed link */}
-      <section>
-        <Link
-          href="/activity"
-          className="flex items-center justify-between w-full rounded-2xl border border-gray-100 bg-white shadow-sm p-4 hover:bg-gray-50 transition"
-        >
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">📣</span>
+        {/* Stats ribbon */}
+        <div className="flex gap-2 mt-3">
+          <div className="flex-1 rounded-xl bg-white border border-gray-100 shadow-sm px-3 py-2 flex items-center gap-2">
+            <span className="text-lg">🔥</span>
             <div>
-              <p className="text-sm font-bold text-charcoal">Activity Feed</p>
-              <p className="text-xs text-gray-400">See what your family has been up to</p>
+              <p className="text-[11px] text-gray-400 leading-tight">Streak</p>
+              <p className="text-sm font-bold text-charcoal leading-tight">{summary.streak}</p>
             </div>
           </div>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
-            <path d="M9 18l6-6-6-6" />
-          </svg>
-        </Link>
-      </section>
+          <div className="flex-1 rounded-xl bg-white border border-gray-100 shadow-sm px-3 py-2 flex items-center gap-2">
+            <span className="text-lg">⚡</span>
+            <div>
+              <p className="text-[11px] text-gray-400 leading-tight">PB</p>
+              <p className="text-sm font-bold text-charcoal leading-tight">{summary.personalBest}</p>
+            </div>
+          </div>
+          <div className="flex-1 rounded-xl bg-white border border-gray-100 shadow-sm px-3 py-2 flex items-center gap-2">
+            <span className="text-lg">👥</span>
+            <div>
+              <p className="text-[11px] text-gray-400 leading-tight">Family</p>
+              <p className="text-sm font-bold text-charcoal leading-tight">{familyResults.members.length || "—"}</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Unified feed */}
+      {feedItems.length === 0 ? (
+        <section className="mt-6">
+          <EmptyState
+            title="Your feed is empty"
+            description="Enter your first parkrun result or invite family members to get started."
+            icon={<span className="text-4xl">🏃</span>}
+            action={
+              <Link href="/results/new">
+                <Button variant="primary" className="mt-2">Enter a result</Button>
+              </Link>
+            }
+          />
+        </section>
+      ) : (
+        <ul className="flex flex-col gap-3 mt-2">
+          {feedItems.map((item) => {
+            if (item.kind === "result") {
+              return (
+                <li key={`r-${item.id}`}>
+                  <Link
+                    href={`/board/${item.id}`}
+                    className="block rounded-2xl border border-gray-100 bg-white shadow-sm p-4 hover:bg-gray-50 transition"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-teal/10 text-teal text-sm font-bold">
+                          {item.runnerName.charAt(0).toUpperCase()}
+                        </span>
+                        <div>
+                          <p className="text-sm font-bold text-charcoal">{item.runnerName}</p>
+                          <p className="text-xs text-gray-400">{item.location} · {item.date}</p>
+                        </div>
+                      </div>
+                      {item.isPending && (
+                        <div className="w-4 h-4 rounded-full border-2 border-coral border-t-transparent animate-spin" />
+                      )}
+                    </div>
+                    <div className="flex items-baseline gap-3 mt-3">
+                      <p className="text-2xl font-bold text-teal tabular-nums">
+                        {Math.floor(item.finishTimeSecs / 60)}:{String(item.finishTimeSecs % 60).padStart(2, "0")}
+                      </p>
+                      {item.ageGradedPct != null && (
+                        <p className="text-sm text-gray-500">{item.ageGradedPct.toFixed(1)}% AG</p>
+                      )}
+                    </div>
+                  </Link>
+                </li>
+              );
+            }
+
+            // Activity item (comment, reaction, cheer, milestone)
+            return (
+              <li key={`a-${item.id}`}>
+                <div className="flex items-start gap-3 rounded-2xl border border-gray-100 bg-white shadow-sm px-4 py-3">
+                  <span className="text-xl mt-0.5">{ACTIVITY_EMOJI[item.type] ?? "📣"}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-charcoal">
+                      <span className="font-bold">{item.actorName}</span>{" "}
+                      {item.action}{" "}
+                      <span className="text-gray-500">{item.target}</span>
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">{formatTimeAgo(item.createdAt)}</p>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </main>
   );
 }
 
-function SummaryCard({ label, value, emoji }: { label: string; value: string; emoji: string }) {
-  return (
-    <div className="rounded-2xl border border-gray-100 bg-white shadow-sm p-4 flex flex-col gap-1">
-      <span className="text-2xl">{emoji}</span>
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="text-xl font-bold text-charcoal">{value}</p>
-    </div>
-  );
+function formatTimeAgo(isoString: string): string {
+  const now = Date.now();
+  const then = new Date(isoString).getTime();
+  const diffMins = Math.floor((now - then) / 60000);
+  if (diffMins < 1) return "just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return `${Math.floor(diffDays / 7)}w ago`;
 }

@@ -66,6 +66,13 @@ export default function ProfilePage() {
             <span className="text-xl">🔔</span>
             Notification preferences
           </Link>
+          <Link
+            href="/profile/data-management"
+            className="flex items-center gap-3 rounded-2xl bg-white border border-gray-100 shadow-sm px-5 py-4 text-charcoal font-medium hover:bg-gray-50 transition"
+          >
+            <span className="text-xl">🗂️</span>
+            Data management
+          </Link>
         </nav>
 
         <p className="text-sm text-gray-400 text-center">Saturday Morning · iteration1</p>

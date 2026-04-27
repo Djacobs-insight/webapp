@@ -3,14 +3,19 @@
 import { prisma } from "../prisma";
 import { auth } from "../auth/auth";
 
+/**
+ * Creates a Photo record with API-based URLs.
+ * SECURITY: URLs point to /api/photos/[id] which enforces authentication & authorization.
+ */
 export async function attachPhoto(
+  photoId: string,
   resultId: string,
-  displayUrl: string,
-  thumbnailUrl: string,
   originalName: string | null,
 ) {
   const session = await auth();
-  if (!session?.user?.id) return { success: false as const, error: "Not authenticated" };
+  if (!session?.user?.id) {
+    return { success: false as const, error: "Not authenticated" };
+  }
 
   // Verify the result belongs to this user
   const result = await prisma.parkrunResult.findUnique({
@@ -21,12 +26,15 @@ export async function attachPhoto(
     return { success: false as const, error: "Result not found" };
   }
 
+  // SECURITY: Store authenticated API URLs instead of direct file paths
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+
   const photo = await prisma.photo.create({
     data: {
       resultId,
       userId: session.user.id,
-      displayUrl,
-      thumbnailUrl,
+      displayUrl: `${apiBaseUrl}/api/photos/${photoId}?size=display`,
+      thumbnailUrl: `${apiBaseUrl}/api/photos/${photoId}?size=thumbnail`,
       originalName,
     },
   });

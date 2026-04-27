@@ -33,6 +33,7 @@ model User {
   userBadges           UserBadge[]
   challengeParticipations ChallengeParticipant[]
   createdChallenges    Challenge[]
+  accountDeletions     AccountDeletion[]
 
   @@map("users")
 }
@@ -155,6 +156,7 @@ model ParkrunResult {
   ageGradedPct    Float?          @map("age_graded_pct")   // populated by Story 4-2
   createdAt       DateTime        @default(now()) @map("created_at")
   updatedAt       DateTime        @updatedAt @map("updated_at")
+  deletedAt       DateTime?       @map("deleted_at")
   user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   location        ParkrunLocation @relation(fields: [locationId], references: [id])
   photos          Photo[]
@@ -176,6 +178,7 @@ model Milestone {
   type      String   @map("type")      // "run_count" | "personal_best" | "age_grade"
   value     String   @map("value")     // e.g. "10", "50", "60", "pb_time", "pb_ag"
   resultId  String?  @map("result_id") // the result that triggered it
+  deletedAt DateTime? @map("deleted_at")
   createdAt DateTime @default(now()) @map("created_at")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -254,6 +257,7 @@ model UserBadge {
   badgeKey  String   @map("badge_key")
   awardedAt DateTime @default(now()) @map("awarded_at")
   resultId  String?  @map("result_id")
+  deletedAt DateTime? @map("deleted_at")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   result    ParkrunResult? @relation(fields: [resultId], references: [id], onDelete: SetNull)
 
@@ -274,6 +278,7 @@ model Challenge {
   winnerId     String?                @map("winner_id")
   createdAt    DateTime               @default(now()) @map("created_at")
   updatedAt    DateTime               @updatedAt @map("updated_at")
+  deletedAt    DateTime?              @map("deleted_at")
   createdBy    User                   @relation(fields: [createdById], references: [id], onDelete: Cascade)
   family       Family                 @relation(fields: [familyId], references: [id], onDelete: Cascade)
   participants ChallengeParticipant[]
@@ -289,6 +294,7 @@ model ChallengeParticipant {
   userId      String   @map("user_id")
   status      String   @default("pending") @map("status") // "pending" | "accepted" | "declined"
   joinedAt    DateTime @default(now()) @map("joined_at")
+  deletedAt   DateTime? @map("deleted_at")
   challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -296,4 +302,16 @@ model ChallengeParticipant {
   @@index([challengeId])
   @@index([userId])
   @@map("challenge_participants")
+}
+
+model AccountDeletion {
+  id        String   @id @default(cuid()) @map("id")
+  userId    String   @map("user_id")
+  undoToken String   @unique @map("undo_token")
+  deletedAt DateTime @map("deleted_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("account_deletions")
 }

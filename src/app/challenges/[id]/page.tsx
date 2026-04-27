@@ -122,6 +122,7 @@ export default function ChallengeDetailPage() {
 
   const accepted = challenge.participants.filter((p) => p.status === "accepted");
   const pending = challenge.participants.filter((p) => p.status === "pending");
+  // eslint-disable-next-line react-hooks/purity
   const daysLeft = Math.max(0, Math.ceil((new Date(challenge.endsAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
 
   return (
