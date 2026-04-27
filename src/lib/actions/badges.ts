@@ -22,6 +22,12 @@ export async function detectBadges(
   ageGradedPct: number | null,
 ): Promise<BadgeInfo[]> {
   const newBadges: BadgeInfo[] = [];
+
+  if (!prisma.userBadge) {
+    console.error("prisma.userBadge is undefined — Prisma client may need regeneration");
+    return newBadges;
+  }
+
   const stats = await getUserBadgeStats(userId);
 
   for (const badge of BADGE_DEFINITIONS) {
@@ -161,6 +167,11 @@ export async function getUserBadges(userId?: string): Promise<UserBadgeDisplay[]
     }
   }
 
+  if (!prisma.userBadge) {
+    console.error("prisma.userBadge is undefined — Prisma client may need regeneration");
+    return [];
+  }
+
   const [earnedBadges, stats] = await Promise.all([
     prisma.userBadge.findMany({
       where: { userId: targetUserId },
@@ -208,6 +219,11 @@ export async function getBadgeFamilyHolders(badgeKey: string): Promise<{ userId:
     select: { userId: true },
   });
   const memberIds = familyMembers.map((m) => m.userId);
+
+  if (!prisma.userBadge) {
+    console.error("prisma.userBadge is undefined — Prisma client may need regeneration");
+    return [];
+  }
 
   const holders = await prisma.userBadge.findMany({
     where: { badgeKey, userId: { in: memberIds } },

@@ -20,10 +20,16 @@ export function BadgeGrid({ userId }: { userId?: string }) {
   const [holdersLoading, setHoldersLoading] = useState(false);
 
   useEffect(() => {
-    getUserBadges(userId).then((data) => {
-      setBadges(data);
-      setLoading(false);
-    });
+    getUserBadges(userId)
+      .then((data) => {
+        setBadges(data);
+      })
+      .catch((err) => {
+        console.error("Failed to load badges:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [userId]);
 
   const earned = badges.filter((b) => b.earned);
@@ -33,9 +39,15 @@ export function BadgeGrid({ userId }: { userId?: string }) {
     setSelectedBadge(badge);
     if (badge.earned) {
       setHoldersLoading(true);
-      const h = await getBadgeFamilyHolders(badge.key);
-      setHolders(h);
-      setHoldersLoading(false);
+      try {
+        const h = await getBadgeFamilyHolders(badge.key);
+        setHolders(h);
+      } catch (err) {
+        console.error("Failed to load badge holders:", err);
+        setHolders([]);
+      } finally {
+        setHoldersLoading(false);
+      }
     } else {
       setHolders([]);
     }
