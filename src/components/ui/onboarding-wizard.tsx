@@ -4,7 +4,8 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { saveOnboardingProfile } from "@/lib/actions/profile";
 
-const STORAGE_KEY = "sm_onboarding_completed";
+const storageKey = (userId?: string) =>
+  userId ? `sm_onboarding_completed_${userId}` : "sm_onboarding_completed";
 
 // Per-step schemas
 const nameSchema = z.object({
@@ -33,18 +34,21 @@ interface WizardData {
 interface OnboardingWizardProps {
   /** Called when wizard finishes or is skipped with collected data */
   onComplete: (data: Partial<WizardData>) => void;
+  /** User ID used to scope the onboarding completion flag per account */
+  userId?: string;
 }
 
-export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
+export function OnboardingWizard({ onComplete, userId }: OnboardingWizardProps) {
   const [step, setStep] = useState<Step>("welcome");
   const [data, setData] = useState<Partial<WizardData>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const stepIndex = STEPS.indexOf(step);
+  const key = storageKey(userId);
 
   const skip = () => {
     if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, "true");
+      localStorage.setItem(key, "true");
     }
     onComplete({});
   };
@@ -92,7 +96,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
 
   const finish = async () => {
     if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, "true");
+      localStorage.setItem(key, "true");
     }
     await saveOnboardingProfile(data);
     onComplete(data);
@@ -382,8 +386,8 @@ function DoneStep({ name, onFinish }: { name?: string; onFinish: () => void }) {
   );
 }
 
-/** Returns true if onboarding has already been completed */
-export function isOnboardingCompleted(): boolean {
+/** Returns true if onboarding has already been completed for the given user */
+export function isOnboardingCompleted(userId?: string): boolean {
   if (typeof window === "undefined") return true;
-  return localStorage.getItem(STORAGE_KEY) === "true";
+  return localStorage.getItem(storageKey(userId)) === "true";
 }

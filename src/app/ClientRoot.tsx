@@ -11,7 +11,8 @@ import { useAuth } from "@/lib/auth/useAuth";
 function AppShell({ children }: { children: React.ReactNode }) {
   const { account, loading } = useAuth();
   const { celebrationMilestones, setCelebrationMilestones } = useOptimisticResult();
-  const showOnboarding = !loading && !!account && !isOnboardingCompleted();
+  const userId = account?.id;
+  const showOnboarding = !loading && !!account && !isOnboardingCompleted(userId);
   const [dismissed, setDismissed] = useState(false);
 
   return (
@@ -19,7 +20,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col pb-16 md:pb-0">{children}</div>
       <BottomNav />
       {showOnboarding && !dismissed && (
-        <OnboardingWizard onComplete={() => setDismissed(true)} />
+        <OnboardingWizard userId={userId} onComplete={() => setDismissed(true)} />
       )}
       {celebrationMilestones.length > 0 && (
         <CelebrationOverlay
