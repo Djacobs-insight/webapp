@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/prisma";
-import fs from "fs/promises";
-import path from "path";
+import { readImageFromStorage } from "@/lib/storage";
 
 /**
  * GET /api/photos/[id]
@@ -71,33 +70,14 @@ export async function GET(
   }
 
   try {
-    // Construct safe file path
-    const filePath = path.join(process.cwd(), "public", fileUrl);
-    const realPath = path.resolve(filePath);
-    const publicDir = path.resolve(path.join(process.cwd(), "public", "uploads"));
-
-    // SECURITY: Prevent directory traversal
-    if (!realPath.startsWith(publicDir)) {
-      return NextResponse.json(
-        { error: "Invalid file access" },
-        { status: 400 },
-      );
+    const result = await readImageFromStorage(fileUrl);
+    if (!result) {
+      return NextResponse.json({ error: "Photo not found" }, { status: 404 });
     }
 
-    const fileBuffer = await fs.readFile(realPath);
-    const ext = path.extname(realPath).toLowerCase();
-    const mimeType =
-      ext === ".jpg" || ext === ".jpeg"
-        ? "image/jpeg"
-        : ext === ".png"
-          ? "image/png"
-          : ext === ".webp"
-            ? "image/webp"
-            : "image/octet-stream";
-
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(result.buffer, {
       headers: {
-        "Content-Type": mimeType,
+        "Content-Type": result.contentType,
         "Cache-Control": "public, max-age=31536000, immutable",
       },
     });

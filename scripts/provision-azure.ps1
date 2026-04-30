@@ -12,6 +12,8 @@
 #   - Azure PostgreSQL Flexible Server + database
 #   - Azure App Service Plan + Web App (Node.js 20)
 #   - Azure Storage Account + blob container for uploads
+#   - Azure CDN profile + endpoint for static assets
+#   - App Service environment variables (auto-configured)
 #   - Outputs all connection strings and env vars needed
 # =============================================================================
 
@@ -50,6 +52,8 @@ if (-not $DbAdminPass) {
 $DbServerName = "$AppName-db"
 $StorageAccountName = ($AppName -replace '[^a-z0-9]', '') + "storage"  # storage names: lowercase alphanumeric only
 $AppServicePlan = "$AppName-plan"
+$CdnProfileName = "$AppName-cdn"
+$CdnEndpointName = "$AppName-assets"
 
 Write-Host "`n=== Provisioning Azure Resources ===" -ForegroundColor Green
 Write-Host "App Name:       $AppName"
@@ -57,10 +61,11 @@ Write-Host "Resource Group: $ResourceGroup"
 Write-Host "Location:       $Location"
 Write-Host "DB Server:      $DbServerName"
 Write-Host "Storage:        $StorageAccountName"
+Write-Host "CDN:            $CdnEndpointName.azureedge.net"
 Write-Host ""
 
 # ── 1. Resource Group ──────────────────────────────────────────────────────────
-Write-Host "[1/7] Creating resource group..." -ForegroundColor Yellow
+Write-Host "[1/9] Creating resource group..." -ForegroundColor Yellow
 az group create `
     --name $ResourceGroup `
     --location $Location `
@@ -69,7 +74,7 @@ az group create `
 Write-Host "      ✓ Resource group: $ResourceGroup" -ForegroundColor Green
 
 # ── 2. PostgreSQL Flexible Server ─────────────────────────────────────────────
-Write-Host "[2/7] Creating PostgreSQL Flexible Server (this takes ~5 mins)..." -ForegroundColor Yellow
+Write-Host "[2/9] Creating PostgreSQL Flexible Server (this takes ~5 mins)..." -ForegroundColor Yellow
 az postgres flexible-server create `
     --resource-group $ResourceGroup `
     --name $DbServerName `
@@ -86,7 +91,7 @@ az postgres flexible-server create `
 Write-Host "      ✓ PostgreSQL server: $DbServerName" -ForegroundColor Green
 
 # ── 3. Create database ─────────────────────────────────────────────────────────
-Write-Host "[3/7] Creating database '$DbName'..." -ForegroundColor Yellow
+Write-Host "[3/9] Creating database '$DbName'..." -ForegroundColor Yellow
 az postgres flexible-server db create `
     --resource-group $ResourceGroup `
     --server-name $DbServerName `
@@ -105,7 +110,7 @@ az postgres flexible-server firewall-rule create `
     --output none
 
 # ── 4. Storage Account ────────────────────────────────────────────────────────
-Write-Host "[4/7] Creating Storage Account..." -ForegroundColor Yellow
+Write-Host "[4/9] Creating Storage Account..." -ForegroundColor Yellow
 az storage account create `
     --resource-group $ResourceGroup `
     --name $StorageAccountName `
@@ -126,7 +131,7 @@ az storage container create `
 Write-Host "      ✓ Storage account: $StorageAccountName (container: uploads)" -ForegroundColor Green
 
 # ── 5. App Service Plan ───────────────────────────────────────────────────────
-Write-Host "[5/7] Creating App Service Plan (B1)..." -ForegroundColor Yellow
+Write-Host "[5/9] Creating App Service Plan (B1)..." -ForegroundColor Yellow
 az appservice plan create `
     --resource-group $ResourceGroup `
     --name $AppServicePlan `
@@ -138,7 +143,7 @@ az appservice plan create `
 Write-Host "      ✓ App Service Plan: $AppServicePlan (B1 Linux)" -ForegroundColor Green
 
 # ── 6. Web App ────────────────────────────────────────────────────────────────
-Write-Host "[6/7] Creating Web App..." -ForegroundColor Yellow
+Write-Host "[6/9] Creating Web App..." -ForegroundColor Yellow
 az webapp create `
     --resource-group $ResourceGroup `
     --plan $AppServicePlan `
@@ -155,11 +160,35 @@ az webapp config set `
 
 Write-Host "      ✓ Web App: https://$AppName.azurewebsites.net" -ForegroundColor Green
 
-# ── 7. Retrieve connection strings ────────────────────────────────────────────
-Write-Host "[7/7] Retrieving connection strings..." -ForegroundColor Yellow
+# ── 7. CDN profile + endpoint ─────────────────────────────────────────────────
+Write-Host "[7/9] Creating Azure CDN profile and endpoint..." -ForegroundColor Yellow
+$StorageBlobHost = "$StorageAccountName.blob.core.windows.net"
+az cdn profile create `
+    --resource-group $ResourceGroup `
+    --name $CdnProfileName `
+    --location Global `
+    --sku Standard_Microsoft `
+    --output none
+
+az cdn endpoint create `
+    --resource-group $ResourceGroup `
+    --profile-name $CdnProfileName `
+    --name $CdnEndpointName `
+    --origin $StorageBlobHost `
+    --origin-host-header $StorageBlobHost `
+    --enable-compression true `
+    --query-string-caching-behavior IgnoreQueryString `
+    --output none
+
+$CdnEndpointUrl = "https://$CdnEndpointName.azureedge.net"
+Write-Host "      ✓ CDN endpoint: $CdnEndpointUrl" -ForegroundColor Green
+
+# ── 8. Retrieve connection strings ─────────────────────────────────────────────
+Write-Host "[8/9] Retrieving connection strings..." -ForegroundColor Yellow
 
 $DbHost = "$DbServerName.postgres.database.azure.com"
 $DatabaseUrl = "postgresql://${DbAdminUser}:${DbAdminPass}@${DbHost}:5432/${DbName}?sslmode=require"
+$AppUrl = "https://$AppName.azurewebsites.net"
 
 $StorageConnStr = az storage account show-connection-string `
     --resource-group $ResourceGroup `
@@ -167,36 +196,60 @@ $StorageConnStr = az storage account show-connection-string `
     --query connectionString `
     --output tsv
 
-# ── Output summary ────────────────────────────────────────────────────────────
+# ── 9. Auto-configure App Service environment variables ────────────────────────
+Write-Host "[9/9] Configuring App Service environment variables..." -ForegroundColor Yellow
+
+# Note: AUTH_SECRET must be provided — generate with: openssl rand -base64 32
+$AuthSecret = Read-Host "Enter AUTH_SECRET (or press Enter to skip and set manually later)"
+
+$settings = @(
+    "DATABASE_URL=$DatabaseUrl",
+    "AZURE_STORAGE_CONNECTION_STRING=$StorageConnStr",
+    "NEXT_PUBLIC_API_URL=$AppUrl",
+    "NEXT_PUBLIC_CDN_URL=$CdnEndpointUrl",
+    "AUTH_TRUST_HOST=true",
+    "NODE_ENV=production",
+    "WEBSITE_NODE_DEFAULT_VERSION=~20"
+)
+if ($AuthSecret) { $settings += "AUTH_SECRET=$AuthSecret" }
+
+az webapp config appsettings set `
+    --resource-group $ResourceGroup `
+    --name $AppName `
+    --settings @settings `
+    --output none
+
+Write-Host "      ✓ App Service settings configured" -ForegroundColor Green
+
+# ── Output summary ─────────────────────────────────────────────────────────────
 Write-Host ""
 Write-Host "=== ✅ Provisioning Complete ===" -ForegroundColor Green
 Write-Host ""
-Write-Host "Your app URL: https://$AppName.azurewebsites.net" -ForegroundColor Cyan
+Write-Host "Your app URL: $AppUrl" -ForegroundColor Cyan
+Write-Host "CDN endpoint: $CdnEndpointUrl" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "--- Copy these into GitHub Secrets AND App Service Configuration ---" -ForegroundColor Yellow
+Write-Host "--- Add these to GitHub Secrets for the deploy workflow ---" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "DATABASE_URL=$DatabaseUrl"
-Write-Host "AZURE_STORAGE_CONNECTION_STRING=$StorageConnStr"
-Write-Host "STORAGE_PROVIDER=azure"
-Write-Host "AUTH_TRUST_HOST=true"
-Write-Host "NODE_ENV=production"
-Write-Host ""
-Write-Host "--- Still needed (add manually) ---" -ForegroundColor Yellow
-Write-Host "AUTH_SECRET=<run: openssl rand -base64 32>"
-Write-Host "AUTH_GOOGLE_ID=<from Google Cloud Console>"
-Write-Host "AUTH_GOOGLE_SECRET=<from Google Cloud Console>"
 Write-Host "AZURE_WEBAPP_NAME=$AppName"
 Write-Host "AZURE_WEBAPP_PUBLISH_PROFILE=<download from App Service portal → Get publish profile>"
+if (-not $AuthSecret) {
+    Write-Host ""
+    Write-Host "--- Still needed in App Service settings (not set above) ---" -ForegroundColor Yellow
+    Write-Host "AUTH_SECRET=<run: openssl rand -base64 32>"
+}
+Write-Host ""
+Write-Host "--- Optional OAuth providers (add via App Service settings) ---" -ForegroundColor Yellow
+Write-Host "AUTH_GOOGLE_ID=<from Google Cloud Console>"
+Write-Host "AUTH_GOOGLE_SECRET=<from Google Cloud Console>"
+Write-Host "AUTH_FACEBOOK_ID=<from Facebook Developer Console>"
+Write-Host "AUTH_FACEBOOK_SECRET=<from Facebook Developer Console>"
 Write-Host ""
 Write-Host "--- Next steps ---" -ForegroundColor Cyan
-Write-Host "1. Copy the DATABASE_URL above and run the migration:"
+Write-Host "1. Run the database migration against production:"
 Write-Host "   `$env:DATABASE_URL='$DatabaseUrl'"
 Write-Host "   pnpm exec prisma migrate deploy"
 Write-Host ""
-Write-Host "2. Set all env vars in App Service:"
-Write-Host "   az webapp config appsettings set --resource-group $ResourceGroup --name $AppName --settings DATABASE_URL='...' AUTH_SECRET='...'"
-Write-Host ""
-Write-Host "3. Download publish profile and add to GitHub Secrets:"
+Write-Host "2. Download publish profile and add to GitHub Secret AZURE_WEBAPP_PUBLISH_PROFILE:"
 Write-Host "   https://portal.azure.com → $AppName → Get publish profile"
 Write-Host ""
-Write-Host "4. Create .github/workflows/deploy.yml (ask Copilot to generate it)"
+Write-Host "3. Push to main branch — deploy.yml will automatically deploy to App Service."
