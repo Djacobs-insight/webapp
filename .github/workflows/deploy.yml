@@ -12,6 +12,7 @@ jobs:
       name: production
       url: https://${{ secrets.AZURE_WEBAPP_NAME }}.azurewebsites.net
 
+    # Note: create a 'production' environment in GitHub repo Settings → Environments
     services:
       postgres:
         image: postgres:16
