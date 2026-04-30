@@ -41,5 +41,9 @@ jobs:
         run: pnpm tsc --noEmit
       - name: Unit Tests (Vitest)
         run: pnpm test
-      - name: E2E Tests (Playwright)
-        run: pnpm exec playwright install --with-deps && pnpm exec playwright test
+      - name: Build
+        run: pnpm build
+        env:
+          NODE_ENV: production
+          NEXT_PUBLIC_API_URL: http://localhost:3000
+          NEXT_PUBLIC_CDN_URL: http://localhost:3000

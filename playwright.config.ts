@@ -10,9 +10,9 @@ export default defineConfig({
     ...devices['Desktop Chrome'],
   },
   webServer: {
-    command: 'pnpm dev --port 3001',
+    command: 'pnpm build && pnpm start',
     url: process.env.BASE_URL || 'http://localhost:3000',
-    reuseExistingServer: true,
-    timeout: 30000,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120000,
   },
 });
