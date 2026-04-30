@@ -68,6 +68,7 @@ jobs:
         run: |
           cp -r public .next/standalone/public
           cp -r .next/static .next/standalone/.next/static
+          cp -r src/generated .next/standalone/src/generated
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
