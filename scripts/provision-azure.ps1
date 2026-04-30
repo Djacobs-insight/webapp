@@ -71,7 +71,7 @@ az group create `
     --location $Location `
     --output none
 
-Write-Host "      ✓ Resource group: $ResourceGroup" -ForegroundColor Green
+Write-Host "      [OK] Resource group: $ResourceGroup" -ForegroundColor Green
 
 # ── 2. PostgreSQL Flexible Server ─────────────────────────────────────────────
 Write-Host "[2/9] Creating PostgreSQL Flexible Server (this takes ~5 mins)..." -ForegroundColor Yellow
@@ -88,7 +88,7 @@ az postgres flexible-server create `
     --yes `
     --output none
 
-Write-Host "      ✓ PostgreSQL server: $DbServerName" -ForegroundColor Green
+Write-Host "      [OK] PostgreSQL server: $DbServerName" -ForegroundColor Green
 
 # ── 3. Create database ─────────────────────────────────────────────────────────
 Write-Host "[3/9] Creating database '$DbName'..." -ForegroundColor Yellow
@@ -98,7 +98,7 @@ az postgres flexible-server db create `
     --database-name $DbName `
     --output none
 
-Write-Host "      ✓ Database: $DbName" -ForegroundColor Green
+Write-Host "      [OK] Database: $DbName" -ForegroundColor Green
 
 # Allow Azure services to connect to the DB
 az postgres flexible-server firewall-rule create `
@@ -128,7 +128,7 @@ az storage container create `
     --auth-mode login `
     --output none
 
-Write-Host "      ✓ Storage account: $StorageAccountName (container: uploads)" -ForegroundColor Green
+Write-Host "      [OK] Storage account: $StorageAccountName (container: uploads)" -ForegroundColor Green
 
 # ── 5. App Service Plan ───────────────────────────────────────────────────────
 Write-Host "[5/9] Creating App Service Plan (B1)..." -ForegroundColor Yellow
@@ -140,7 +140,7 @@ az appservice plan create `
     --is-linux `
     --output none
 
-Write-Host "      ✓ App Service Plan: $AppServicePlan (B1 Linux)" -ForegroundColor Green
+Write-Host "      [OK] App Service Plan: $AppServicePlan (B1 Linux)" -ForegroundColor Green
 
 # ── 6. Web App ────────────────────────────────────────────────────────────────
 Write-Host "[6/9] Creating Web App..." -ForegroundColor Yellow
@@ -148,7 +148,7 @@ az webapp create `
     --resource-group $ResourceGroup `
     --plan $AppServicePlan `
     --name $AppName `
-    --runtime "NODE:20-lts" `
+    --runtime "NODE:22-lts" `
     --output none
 
 # Enable Node.js startup
@@ -158,30 +158,38 @@ az webapp config set `
     --startup-file "node server.js" `
     --output none
 
-Write-Host "      ✓ Web App: https://$AppName.azurewebsites.net" -ForegroundColor Green
+Write-Host "      [OK] Web App: https://$AppName.azurewebsites.net" -ForegroundColor Green
 
-# ── 7. CDN profile + endpoint ─────────────────────────────────────────────────
-Write-Host "[7/9] Creating Azure CDN profile and endpoint..." -ForegroundColor Yellow
+# ── 7. Azure Front Door (CDN) ─────────────────────────────────────────────────
+Write-Host "[7/9] Creating Azure Front Door profile and endpoint..." -ForegroundColor Yellow
 $StorageBlobHost = "$StorageAccountName.blob.core.windows.net"
-az cdn profile create `
-    --resource-group $ResourceGroup `
-    --name $CdnProfileName `
-    --location Global `
-    --sku Standard_Microsoft `
-    --output none
 
-az cdn endpoint create `
+az afd profile create `
     --resource-group $ResourceGroup `
     --profile-name $CdnProfileName `
-    --name $CdnEndpointName `
-    --origin $StorageBlobHost `
-    --origin-host-header $StorageBlobHost `
-    --enable-compression true `
-    --query-string-caching-behavior IgnoreQueryString `
+    --sku Standard_AzureFrontDoor `
     --output none
 
-$CdnEndpointUrl = "https://$CdnEndpointName.azureedge.net"
-Write-Host "      ✓ CDN endpoint: $CdnEndpointUrl" -ForegroundColor Green
+az afd endpoint create `
+    --resource-group $ResourceGroup `
+    --profile-name $CdnProfileName `
+    --endpoint-name $CdnEndpointName `
+    --enabled-state Enabled `
+    --output none
+
+$CdnEndpointUrl = az afd endpoint show `
+    --resource-group $ResourceGroup `
+    --profile-name $CdnProfileName `
+    --endpoint-name $CdnEndpointName `
+    --query hostName --output tsv 2>$null
+
+if ($CdnEndpointUrl) {
+    $CdnEndpointUrl = "https://$CdnEndpointUrl"
+    Write-Host "      [OK] Front Door endpoint: $CdnEndpointUrl" -ForegroundColor Green
+} else {
+    $CdnEndpointUrl = "https://$StorageBlobHost/uploads"
+    Write-Host "      [OK] CDN skipped - using blob storage URL: $CdnEndpointUrl" -ForegroundColor Yellow
+}
 
 # ── 8. Retrieve connection strings ─────────────────────────────────────────────
 Write-Host "[8/9] Retrieving connection strings..." -ForegroundColor Yellow
@@ -219,11 +227,11 @@ az webapp config appsettings set `
     --settings @settings `
     --output none
 
-Write-Host "      ✓ App Service settings configured" -ForegroundColor Green
+Write-Host "      [OK] App Service settings configured" -ForegroundColor Green
 
 # ── Output summary ─────────────────────────────────────────────────────────────
 Write-Host ""
-Write-Host "=== ✅ Provisioning Complete ===" -ForegroundColor Green
+Write-Host "=== [DONE] Provisioning Complete ===" -ForegroundColor Green
 Write-Host ""
 Write-Host "Your app URL: $AppUrl" -ForegroundColor Cyan
 Write-Host "CDN endpoint: $CdnEndpointUrl" -ForegroundColor Cyan
@@ -250,6 +258,6 @@ Write-Host "   `$env:DATABASE_URL='$DatabaseUrl'"
 Write-Host "   pnpm exec prisma migrate deploy"
 Write-Host ""
 Write-Host "2. Download publish profile and add to GitHub Secret AZURE_WEBAPP_PUBLISH_PROFILE:"
-Write-Host "   https://portal.azure.com → $AppName → Get publish profile"
+Write-Host "   https://portal.azure.com -> $AppName -> Get publish profile"
 Write-Host ""
-Write-Host "3. Push to main branch — deploy.yml will automatically deploy to App Service."
+Write-Host "3. Push to main branch - deploy.yml will automatically deploy to App Service."
