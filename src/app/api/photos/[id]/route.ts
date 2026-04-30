@@ -75,7 +75,7 @@ export async function GET(
       return NextResponse.json({ error: "Photo not found" }, { status: 404 });
     }
 
-    return new NextResponse(result.buffer, {
+    return new NextResponse(result.buffer as unknown as BodyInit, {
       headers: {
         "Content-Type": result.contentType,
         "Cache-Control": "public, max-age=31536000, immutable",
