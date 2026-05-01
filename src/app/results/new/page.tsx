@@ -10,6 +10,7 @@ import { useOptimisticResult } from "@/lib/optimistic-result-context";
 import { BackChevron } from "@/components/ui/back-chevron";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { formatFinishTime } from "@/lib/format-finish-time";
 
 function AddResultPageInner() {
   const { account, loading: authLoading } = useAuth();
@@ -246,19 +247,7 @@ function AddResultPageInner() {
               type="text"
               id="result-time"
               value={finishTime}
-              onChange={(e) => {
-                // Auto-format mm:ss while typing — user types only digits.
-                // Mobile numeric keypads (inputMode="numeric") often hide ':',
-                // so we insert it automatically once 3+ digits are entered.
-                const digits = e.target.value.replace(/\D/g, "").slice(0, 5);
-                let formatted = digits;
-                if (digits.length >= 3) {
-                  const ss = digits.slice(-2);
-                  const mm = digits.slice(0, digits.length - 2);
-                  formatted = `${mm}:${ss}`;
-                }
-                setFinishTime(formatted);
-              }}
+              onChange={(e) => setFinishTime(formatFinishTime(e.target.value))}
               onBlur={(e) => validateTime(e.target.value)}
               placeholder=" "
               inputMode="numeric"
