@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+// Ensure photo URL construction does not pick up a developer-local
+// NEXT_PUBLIC_API_URL from .env files when these unit tests run.
+vi.stubEnv("NEXT_PUBLIC_API_URL", "");
+
 let mockPrisma: Record<string, Record<string, ReturnType<typeof vi.fn>>>;
 let mockAuth: ReturnType<typeof vi.fn>;
 
