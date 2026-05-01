@@ -25,6 +25,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
   const [pageLoading, setPageLoading] = useState(true);
   const [joining, setJoining] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
+  const [autoJoinAttempted, setAutoJoinAttempted] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -53,8 +54,8 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
 
   async function handleJoin() {
     if (!account) {
-      // Redirect to home — MSAL login will return them here via redirect URI
-      // Store the invite path so they can return after login
+      // Redirect to home — sign-in will return them here via post-login redirect
+      // Store the invite path so they can return after login (and onboarding)
       sessionStorage.setItem("sm_post_login_redirect", `/invite/${token}`);
       router.push("/");
       return;
@@ -71,6 +72,18 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
     }
     router.push("/family");
   }
+
+  // Auto-join once the user is signed in and we have a valid invite, so the
+  // sign-in → onboarding → join flow happens without an extra confirmation tap.
+  useEffect(() => {
+    if (autoJoinAttempted) return;
+    if (authLoading || pageLoading) return;
+    if (!account || !inviteInfo) return;
+    if (inviteInfo.expired || inviteInfo.used) return;
+    setAutoJoinAttempted(true);
+    void handleJoin();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, pageLoading, account, inviteInfo, autoJoinAttempted]);
 
   if (pageLoading || authLoading) {
     return (
