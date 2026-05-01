@@ -246,10 +246,25 @@ function AddResultPageInner() {
               type="text"
               id="result-time"
               value={finishTime}
-              onChange={(e) => setFinishTime(e.target.value)}
+              onChange={(e) => {
+                // Auto-format mm:ss while typing — user types only digits.
+                // Mobile numeric keypads (inputMode="numeric") often hide ':',
+                // so we insert it automatically once 3+ digits are entered.
+                const digits = e.target.value.replace(/\D/g, "").slice(0, 5);
+                let formatted = digits;
+                if (digits.length >= 3) {
+                  const ss = digits.slice(-2);
+                  const mm = digits.slice(0, digits.length - 2);
+                  formatted = `${mm}:${ss}`;
+                }
+                setFinishTime(formatted);
+              }}
               onBlur={(e) => validateTime(e.target.value)}
               placeholder=" "
               inputMode="numeric"
+              pattern="[0-9:]*"
+              autoComplete="off"
+              maxLength={6}
               required
               className="peer w-full h-12 px-4 pt-4 pb-1 text-base rounded-xl border-2 border-gray-200 bg-white text-charcoal focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20 placeholder-transparent"
             />
