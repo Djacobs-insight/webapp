@@ -1,12 +1,26 @@
 @import 'tailwindcss';
 
+/* ────────────────────────────────────────────────────────────────────────────
+   Dark-first contemporary palette.
+   Token names (coral, teal, charcoal, warm-white, etc.) are preserved so
+   existing class usages (bg-coral, text-charcoal, ...) still work. The mapping
+   is what changed: warm-white is now a near-black canvas, charcoal is a near-
+   white text colour, and the accents are slightly brightened for glow on dark.
+   ──────────────────────────────────────────────────────────────────────────── */
 @theme {
-  --color-coral: #E8654A;
-  --color-teal: #2BA5A5;
-  --color-warm-white: #FDF8F4;
-  --color-gold: #F5A623;
-  --color-lavender: #8B7EC8;
-  --color-charcoal: #2D2D2D;
+  --color-coral: #FF6F5C;        /* neon coral accent */
+  --color-teal: #2DD4BF;         /* neon teal accent */
+  --color-warm-white: #0E1116;   /* page background (was #FDF8F4) */
+  --color-gold: #FBBF24;
+  --color-lavender: #A78BFA;
+  --color-charcoal: #E6EDF3;     /* primary text colour (was #2D2D2D) */
+
+  /* New surface tokens used by the overrides below */
+  --color-surface: #161B22;      /* card background */
+  --color-surface-hover: #1F252D;
+  --color-border-subtle: #262C36;
+  --color-muted: #8B949E;        /* secondary text */
+
   --font-display: 'JetBrains Mono', monospace;
 }
 
@@ -15,3 +29,44 @@ body {
   color: var(--color-charcoal);
   font-family: var(--font-display), Arial, Helvetica, sans-serif;
 }
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Surface overrides — re-map specific Tailwind utilities to dark surfaces.
+   We do NOT override `--color-white` directly, because `text-white` is used on
+   coloured buttons (bg-coral text-white) and must remain actual white.
+   ──────────────────────────────────────────────────────────────────────────── */
+@layer utilities {
+  /* Card backgrounds */
+  .bg-white { background-color: var(--color-surface); }
+  .bg-gray-50 { background-color: var(--color-surface-hover); }
+  .hover\:bg-gray-50:hover { background-color: var(--color-surface-hover); }
+  .hover\:bg-gray-100:hover { background-color: var(--color-surface-hover); }
+  .bg-gray-100 { background-color: var(--color-surface-hover); }
+  .bg-gray-200 { background-color: var(--color-border-subtle); }
+
+  /* Borders */
+  .border-gray-100 { border-color: var(--color-border-subtle); }
+  .border-gray-200 { border-color: var(--color-border-subtle); }
+  .border-gray-300 { border-color: var(--color-border-subtle); }
+  .divide-gray-100 > :not([hidden]) ~ :not([hidden]) { border-color: var(--color-border-subtle); }
+  .divide-gray-200 > :not([hidden]) ~ :not([hidden]) { border-color: var(--color-border-subtle); }
+
+  /* Muted text */
+  .text-gray-400 { color: var(--color-muted); }
+  .text-gray-500 { color: var(--color-muted); }
+  .text-gray-600 { color: #B1BAC4; }
+
+  /* Inputs / form fields */
+  input, textarea, select {
+    background-color: var(--color-surface);
+    color: var(--color-charcoal);
+    border-color: var(--color-border-subtle);
+  }
+  input::placeholder, textarea::placeholder {
+    color: var(--color-muted);
+  }
+}
+
+/* Native form-control colour scheme so the browser renders dark UI for
+   date / time pickers, scroll bars, etc. */
+:root { color-scheme: dark; }
