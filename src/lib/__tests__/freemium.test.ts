@@ -20,8 +20,8 @@ beforeEach(() => {
 const FAMILY_ID = "family-1";
 
 describe("FREE_MEMBER_LIMIT", () => {
-  it("is 3", () => {
-    expect(FREE_MEMBER_LIMIT).toBe(3);
+  it("is 30", () => {
+    expect(FREE_MEMBER_LIMIT).toBe(30);
   });
 });
 
@@ -44,17 +44,17 @@ describe("getFamilyMemberCount", () => {
 
 describe("isFamilyAtLimit", () => {
   it("returns false when under limit", async () => {
-    mockPrisma.familyMember.count.mockResolvedValue(2);
+    mockPrisma.familyMember.count.mockResolvedValue(FREE_MEMBER_LIMIT - 1);
     expect(await isFamilyAtLimit(FAMILY_ID)).toBe(false);
   });
 
   it("returns true when at limit", async () => {
-    mockPrisma.familyMember.count.mockResolvedValue(3);
+    mockPrisma.familyMember.count.mockResolvedValue(FREE_MEMBER_LIMIT);
     expect(await isFamilyAtLimit(FAMILY_ID)).toBe(true);
   });
 
   it("returns true when over limit", async () => {
-    mockPrisma.familyMember.count.mockResolvedValue(5);
+    mockPrisma.familyMember.count.mockResolvedValue(FREE_MEMBER_LIMIT + 2);
     expect(await isFamilyAtLimit(FAMILY_ID)).toBe(true);
   });
 });

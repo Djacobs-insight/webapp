@@ -1,6 +1,6 @@
 import { prisma } from "./prisma";
 
-export const FREE_MEMBER_LIMIT = 3;
+export const FREE_MEMBER_LIMIT = 30;
 
 /**
  * Returns the active (non-deleted) member count for a family.
