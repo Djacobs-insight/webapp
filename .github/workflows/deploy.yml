@@ -66,6 +66,25 @@ jobs:
           cp -r public .next/standalone/public
           cp -r .next/static .next/standalone/.next/static
           cp -r src/generated .next/standalone/src/generated
+          # Ensure @prisma/adapter-pg exists in standalone (not always traced)
+          if [ ! -d .next/standalone/node_modules/@prisma/adapter-pg ]; then
+            mkdir -p .next/standalone/node_modules/@prisma
+            cp -r node_modules/@prisma/adapter-pg .next/standalone/node_modules/@prisma/adapter-pg
+          fi
+          # Turbopack rewrites externals to content-hashed names like
+          # @prisma/client-<hash> and @prisma/adapter-pg-<hash>. Create
+          # alias copies so Node can resolve them at runtime.
+          cd .next/standalone/node_modules/@prisma
+          for pkg in client adapter-pg; do
+            hash=$(grep -rho "@prisma/${pkg}-[a-f0-9]\{10,\}" ../../../server/chunks 2>/dev/null \
+              | head -n1 | sed "s|@prisma/${pkg}-||")
+            if [ -n "$hash" ] && [ ! -d "${pkg}-${hash}" ]; then
+              echo "Aliasing @prisma/${pkg} -> @prisma/${pkg}-${hash}"
+              cp -r "$pkg" "${pkg}-${hash}"
+            fi
+          done
+          cd -
+          ls .next/standalone/node_modules/@prisma
 
       - name: Create deployment zip
         run: |
