@@ -6,6 +6,7 @@ import { z } from "zod";
 import { calculateAgeGradedPercentage, calculateAgeOnDate } from "../age-grading";
 import { detectBadges } from "./badges";
 import { resolveExpiredChallenges } from "./challenges";
+import { getActivityFeed } from "./cheers";
 
 const timeRegex = /^\d{1,3}:\d{2}$/;
 
@@ -333,7 +334,7 @@ function getWeekLabel(d: Date): string {
   return `Week of ${formatDate(monday)}`;
 }
 
-export async function getFamilyResults(filterUserId?: string) {
+export async function getFamilyResults(filterUserId?: string, limit?: number) {
   const session = await auth();
   if (!session?.user?.id) return { results: [], members: [] };
 
@@ -360,6 +361,7 @@ export async function getFamilyResults(filterUserId?: string) {
   const results = await prisma.parkrunResult.findMany({
     where,
     orderBy: { date: "desc" },
+    ...(typeof limit === "number" ? { take: limit } : {}),
     include: { location: true, user: { select: { id: true, name: true } } },
   });
 
@@ -646,4 +648,20 @@ export async function getTrendData() {
       improvementPct: improvement,
     },
   };
+}
+
+
+// -- Dashboard combined fetch --------------------------------------------------
+// Single round-trip used by the home feed. Runs the four pieces in parallel
+// server-side, sharing one App Service wake-up instead of four sequential
+// server-action POSTs from the client.
+
+export async function getDashboardData() {
+  const [summary, activity, family, recent] = await Promise.all([
+    getDashboardSummary(),
+    getActivityFeed(),
+    getFamilyResults(undefined, 50),
+    getRecentResults(5),
+  ]);
+  return { summary, activity, family, recent };
 }

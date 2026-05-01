@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/useAuth";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { getRecentResults, getDashboardSummary, getFamilyResults } from "@/lib/actions/results";
-import { getActivityFeed, type ActivityItem } from "@/lib/actions/cheers";
+import { getRecentResults, getFamilyResults, getDashboardData } from "@/lib/actions/results";
+import { type ActivityItem } from "@/lib/actions/cheers";
 import { useOptimisticResult } from "@/lib/optimistic-result-context";
 
 export default function DashboardPage() {
@@ -71,10 +71,12 @@ function AuthenticatedDashboard({ name }: { name: string }) {
   const { optimisticResult, clearOptimistic } = useOptimisticResult();
 
   const refreshResults = () => {
-    getDashboardSummary().then(setSummary);
-    getActivityFeed().then(setActivity);
-    getFamilyResults().then(setFamilyResults);
-    return getRecentResults(5).then(setResults);
+    return getDashboardData().then((d) => {
+      setSummary(d.summary);
+      setActivity(d.activity);
+      setFamilyResults(d.family);
+      setResults(d.recent);
+    });
   };
 
   useEffect(() => {
