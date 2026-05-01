@@ -1,0 +1,303 @@
+2026-04-30T12:30:19.2703322Z State: Starting, Action: EstablishingSiteNetworks, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: , DetailsLevel: INFO
+2026-04-30T12:30:21.7787779Z State: Starting, Action: StartingSiteContainers, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: , DetailsLevel: INFO
+2026-04-30T12:30:21.7881787Z Container start method called.
+2026-04-30T12:30:21.7987258Z State: Starting, Action: PullingImage, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Pulling image 10.1.0.5:13209/appsvc/node:22-lts_20260115.4.tuxprod for fivekapp., DetailsLevel: INFO
+2026-04-30T12:30:21.8166733Z Establishing network.
+2026-04-30T12:30:21.8268370Z Pulling image: appsvc/node:22-lts_20260115.4.tuxprod.
+2026-04-30T12:30:22.6764290Z Image appsvc/node:22-lts_20260115.4.tuxprod is pulled from registry 10.1.0.5:13209
+2026-04-30T12:30:22.6781620Z Container is starting.
+2026-04-30T12:30:22.6791416Z State: Starting, Action: MountingVolumes, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Mounting volumes for fivekapp., DetailsLevel: INFO
+2026-04-30T12:30:22.6859045Z Establishing user namespace if not established already.
+2026-04-30T12:30:22.6861313Z Establishing network if not established already.
+2026-04-30T12:30:22.6863398Z Mounting volumes.
+2026-04-30T12:30:22.6877636Z Nested mountpoint 
+2026-04-30T12:30:22.7566190Z Nested mountpoint volatile/logs
+2026-04-30T12:30:22.8266452Z Nested mountpoint 
+2026-04-30T12:30:22.9099865Z Nested mountpoint 
+2026-04-30T12:30:22.9395141Z Nested mountpoint 
+2026-04-30T12:30:23.5013560Z State: Starting, Action: CreatingContainer, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Finished pulling container image and mounting volumes for fivekapp. Allocatinng the rest of the container resources to finish container creation., DetailsLevel: INFO
+2026-04-30T12:30:23.5021147Z Creating container.
+2026-04-30T12:30:23.5028403Z Creating pipes for streaming container io.
+2026-04-30T12:30:23.5032802Z Creating stdout named pipe at /podr/container/pipe/1d3103bcd9c7_fivekapp/stdout_bf42585a7c494684819ffec04457bcaa.
+2026-04-30T12:30:23.5323831Z Successfully created stdout named pipe at: /podr/container/pipe/1d3103bcd9c7_fivekapp/stdout_bf42585a7c494684819ffec04457bcaa.
+2026-04-30T12:30:23.5325453Z Opening named pipe /podr/container/pipe/1d3103bcd9c7_fivekapp/stdout_bf42585a7c494684819ffec04457bcaa for reading in non-blocking mode.
+2026-04-30T12:30:23.5327064Z Successfully opened named pipe: /podr/container/pipe/1d3103bcd9c7_fivekapp/stdout_bf42585a7c494684819ffec04457bcaa.
+2026-04-30T12:30:23.5328287Z Successfully removed non-blocking flag from /podr/container/pipe/1d3103bcd9c7_fivekapp/stdout_bf42585a7c494684819ffec04457bcaa.
+2026-04-30T12:30:23.5818899Z Creating stderr named pipe at /podr/container/pipe/1d3103bcd9c7_fivekapp/stderr_4f2de7cca5454619ad6f47c6f2904860.
+2026-04-30T12:30:23.5821825Z Successfully created stderr named pipe at: /podr/container/pipe/1d3103bcd9c7_fivekapp/stderr_4f2de7cca5454619ad6f47c6f2904860.
+2026-04-30T12:30:23.5822656Z Opening named pipe /podr/container/pipe/1d3103bcd9c7_fivekapp/stderr_4f2de7cca5454619ad6f47c6f2904860 for reading in non-blocking mode.
+2026-04-30T12:30:23.5823726Z Successfully opened named pipe: /podr/container/pipe/1d3103bcd9c7_fivekapp/stderr_4f2de7cca5454619ad6f47c6f2904860.
+2026-04-30T12:30:23.5825470Z Successfully removed non-blocking flag from /podr/container/pipe/1d3103bcd9c7_fivekapp/stderr_4f2de7cca5454619ad6f47c6f2904860.
+2026-04-30T12:30:23.5834120Z Creating container with image: appsvc/node:22-lts_20260115.4.tuxprod from registry: 10.1.0.5:13209 and fully qualified image name: 10.1.0.5:13209/appsvc/node:22-lts_20260115.4.tuxprod
+2026-04-30T12:30:24.7840891Z Starting container: 1d3103bcd9c7_fivekapp.
+2026-04-30T12:30:24.9950939Z Starting watchers and probes.
+2026-04-30T12:30:25.0129101Z Starting metrics collection.
+2026-04-30T12:30:25.0163808Z Container is running.
+2026-04-30T12:30:25.0252544Z State: Starting, Action: CreatingContainer, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Container fivekapp successfully created and is running., DetailsLevel: INFO
+2026-04-30T12:30:25.2709072Z Container start method finished after 3481 ms.
+2026-04-30T12:30:25.2911949Z State: Starting, Action: InitiatingSiteWarmUpProbe, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Container fivekapp successfully created and is running., DetailsLevel: INFO
+2026-04-30T12:30:25.2987902Z State: Starting, Action: WaitingForSiteWarmUpProbeSuccess, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Pinging warmup path to ensure container is ready to receive requests., DetailsLevel: INFO
+2026-04-30T12:30:58.6931281Z Container has finished running with exit code: 1.
+2026-04-30T12:30:58.6956171Z Container is terminating. Grace period: 5 seconds.
+2026-04-30T12:30:58.7061588Z Stop and delete container. Retry count = 0
+2026-04-30T12:30:58.7142281Z Stopping container: 1d3103bcd9c7_fivekapp.
+2026-04-30T12:30:58.8462557Z Deleting container: 1d3103bcd9c7_fivekapp. Retry count = 0
+2026-04-30T12:30:59.2178040Z Container spec TerminationMessagePolicy  path 
+2026-04-30T12:30:59.2190441Z Container is terminated. Total time elapsed: 522 ms.
+2026-04-30T12:30:59.2272206Z Site container: fivekapp terminated during site startup.
+2026-04-30T12:30:59.2368471Z State: Stopping, Action: CancellingStartup, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:30:59.3493461Z Site startup probe failed after 33.9989893 seconds.
+2026-04-30T12:30:59.9217793Z State: Stopping, Action: CancellingStartup, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:30:59, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:30:59.9738007Z Failed to start site. Revert by stopping site.
+2026-04-30T12:30:59.9835174Z State: Stopping, Action: StoppingSite, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:30:59, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:31:00.0341156Z State: Stopping, Action: StoppingSiteContainers, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:30:59, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:31:00.0342490Z Site: fivekapp stopped.
+2026-04-30T12:31:00.0819980Z State: Stopping, Action: UnmountingVolumes, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:30:59, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:31:00.5569449Z State: Stopping, Action: StoppingSiteNetworks, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:30:59, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:31:00.8175813Z State: Stopped, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:30:59, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site stopped at 04/30/2026 12:31:00 (UTC), DetailsLevel: ERR
+2026-04-30T12:31:01.1080985Z State: Stopped, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:30:59, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site stopped at 04/30/2026 12:31:00 (UTC), DetailsLevel: ERR
+2026-04-30T12:31:06.6908520Z State: Starting, Action: EstablishingSiteNetworks, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:30:59, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site stopped at 04/30/2026 12:31:00 (UTC), DetailsLevel: ERR
+2026-04-30T12:31:09.3279122Z State: Starting, Action: StartingSiteContainers, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:30:59, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site stopped at 04/30/2026 12:31:00 (UTC), DetailsLevel: ERR
+2026-04-30T12:31:09.3281030Z Container start method called.
+2026-04-30T12:31:09.3281808Z State: Starting, Action: PullingImage, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:30:59, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Pulling image 10.1.0.5:13209/appsvc/node:22-lts_20260115.4.tuxprod for fivekapp., DetailsLevel: INFO
+2026-04-30T12:31:09.3282745Z Establishing network.
+2026-04-30T12:31:09.3283849Z Pulling image: appsvc/node:22-lts_20260115.4.tuxprod.
+2026-04-30T12:31:10.0410718Z Container is starting.
+2026-04-30T12:31:10.0412098Z State: Starting, Action: MountingVolumes, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:30:59, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Mounting volumes for fivekapp., DetailsLevel: INFO
+2026-04-30T12:31:10.0412941Z Establishing user namespace if not established already.
+2026-04-30T12:31:10.0413999Z Establishing network if not established already.
+2026-04-30T12:31:10.0415568Z Mounting volumes.
+2026-04-30T12:31:10.0417363Z Nested mountpoint 
+2026-04-30T12:31:10.1423770Z Nested mountpoint volatile/logs
+2026-04-30T12:31:10.1727114Z Nested mountpoint 
+2026-04-30T12:31:10.1836646Z Nested mountpoint 
+2026-04-30T12:31:10.2528048Z Nested mountpoint 
+2026-04-30T12:31:10.9362531Z State: Starting, Action: CreatingContainer, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:30:59, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Finished pulling container image and mounting volumes for fivekapp. Allocatinng the rest of the container resources to finish container creation., DetailsLevel: INFO
+2026-04-30T12:31:10.9366349Z Creating container.
+2026-04-30T12:31:10.9367345Z Creating pipes for streaming container io.
+2026-04-30T12:31:10.9462984Z Creating stdout named pipe at /podr/container/pipe/f86cae6de630_fivekapp/stdout_687baf078dd24bf8851f0c8dd2fa5d93.
+2026-04-30T12:31:10.9466297Z Successfully created stdout named pipe at: /podr/container/pipe/f86cae6de630_fivekapp/stdout_687baf078dd24bf8851f0c8dd2fa5d93.
+2026-04-30T12:31:10.9467231Z Opening named pipe /podr/container/pipe/f86cae6de630_fivekapp/stdout_687baf078dd24bf8851f0c8dd2fa5d93 for reading in non-blocking mode.
+2026-04-30T12:31:10.9468362Z Successfully opened named pipe: /podr/container/pipe/f86cae6de630_fivekapp/stdout_687baf078dd24bf8851f0c8dd2fa5d93.
+2026-04-30T12:31:10.9469114Z Successfully removed non-blocking flag from /podr/container/pipe/f86cae6de630_fivekapp/stdout_687baf078dd24bf8851f0c8dd2fa5d93.
+2026-04-30T12:31:10.9582673Z Creating stderr named pipe at /podr/container/pipe/f86cae6de630_fivekapp/stderr_d740d06b388649c38080f622836b0c20.
+2026-04-30T12:31:10.9680489Z Successfully created stderr named pipe at: /podr/container/pipe/f86cae6de630_fivekapp/stderr_d740d06b388649c38080f622836b0c20.
+2026-04-30T12:31:10.9857779Z Opening named pipe /podr/container/pipe/f86cae6de630_fivekapp/stderr_d740d06b388649c38080f622836b0c20 for reading in non-blocking mode.
+2026-04-30T12:31:10.9877061Z Successfully opened named pipe: /podr/container/pipe/f86cae6de630_fivekapp/stderr_d740d06b388649c38080f622836b0c20.
+2026-04-30T12:31:10.9967912Z Successfully removed non-blocking flag from /podr/container/pipe/f86cae6de630_fivekapp/stderr_d740d06b388649c38080f622836b0c20.
+2026-04-30T12:31:11.0064717Z Creating container with image: appsvc/node:22-lts_20260115.4.tuxprod from registry: 10.1.0.5:13209 and fully qualified image name: 10.1.0.5:13209/appsvc/node:22-lts_20260115.4.tuxprod
+2026-04-30T12:31:12.2297089Z Starting container: f86cae6de630_fivekapp.
+2026-04-30T12:31:12.3791913Z Starting watchers and probes.
+2026-04-30T12:31:12.4399073Z Starting metrics collection.
+2026-04-30T12:31:12.4401993Z Container is running.
+2026-04-30T12:31:12.4403564Z State: Starting, Action: CreatingContainer, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:30:59, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Container fivekapp successfully created and is running., DetailsLevel: INFO
+2026-04-30T12:31:12.9837748Z Container start method finished after 3655 ms.
+2026-04-30T12:31:12.9839994Z State: Starting, Action: InitiatingSiteWarmUpProbe, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:30:59, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Container fivekapp successfully created and is running., DetailsLevel: INFO
+2026-04-30T12:31:12.9840212Z State: Starting, Action: WaitingForSiteWarmUpProbeSuccess, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:30:59, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Pinging warmup path to ensure container is ready to receive requests., DetailsLevel: INFO
+2026-04-30T12:31:55.4540378Z Container has finished running with exit code: 1.
+2026-04-30T12:31:55.4723540Z Container is terminating. Grace period: 5 seconds.
+2026-04-30T12:31:55.4832378Z Stop and delete container. Retry count = 0
+2026-04-30T12:31:55.4914439Z Stopping container: f86cae6de630_fivekapp.
+2026-04-30T12:31:55.5820149Z Deleting container: f86cae6de630_fivekapp. Retry count = 0
+2026-04-30T12:31:55.8439213Z Container spec TerminationMessagePolicy  path 
+2026-04-30T12:31:55.8441329Z Container is terminated. Total time elapsed: 371 ms.
+2026-04-30T12:31:55.8442520Z Site container: fivekapp terminated during site startup.
+2026-04-30T12:31:55.8443829Z State: Stopping, Action: CancellingStartup, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:30:59, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:31:55.8549557Z Site startup probe failed after 42.870104 seconds.
+2026-04-30T12:31:56.1154641Z State: Stopping, Action: CancellingStartup, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:31:56, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:31:56.1173678Z Failed to start site. Revert by stopping site.
+2026-04-30T12:31:56.1258710Z State: Stopping, Action: StoppingSite, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:31:56, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:31:56.1278686Z State: Stopping, Action: StoppingSiteContainers, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:31:56, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:31:56.1278983Z Site: fivekapp stopped.
+2026-04-30T12:33:08.6328855Z State: Starting, Action: EstablishingSiteNetworks, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:31:56, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 04/30/2026 12:32:56, DetailsLevel: WARN
+2026-04-30T12:33:13.0693528Z State: Starting, Action: StartingSiteContainers, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:31:56, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 04/30/2026 12:32:56, DetailsLevel: WARN
+2026-04-30T12:33:13.0694760Z Container start method called.
+2026-04-30T12:33:13.0695252Z State: Starting, Action: PullingImage, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:31:56, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Pulling image 10.1.0.4:13209/appsvc/node:22-lts_20260115.4.tuxprod for fivekapp., DetailsLevel: INFO
+2026-04-30T12:33:13.0696004Z Establishing network.
+2026-04-30T12:33:13.0697004Z Pulling image: appsvc/node:22-lts_20260115.4.tuxprod.
+2026-04-30T12:33:13.6626180Z Container is starting.
+2026-04-30T12:33:13.6627905Z State: Starting, Action: MountingVolumes, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:31:56, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Mounting volumes for fivekapp., DetailsLevel: INFO
+2026-04-30T12:33:13.6629175Z Establishing user namespace if not established already.
+2026-04-30T12:33:13.6630434Z Establishing network if not established already.
+2026-04-30T12:33:13.6631849Z Mounting volumes.
+2026-04-30T12:33:13.6635299Z Nested mountpoint 
+2026-04-30T12:33:13.6731292Z Nested mountpoint volatile/logs
+2026-04-30T12:33:13.6918860Z Nested mountpoint 
+2026-04-30T12:33:13.7042651Z Nested mountpoint 
+2026-04-30T12:33:13.8138756Z Nested mountpoint 
+2026-04-30T12:33:14.9799137Z State: Starting, Action: CreatingContainer, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:31:56, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Finished pulling container image and mounting volumes for fivekapp. Allocatinng the rest of the container resources to finish container creation., DetailsLevel: INFO
+2026-04-30T12:33:14.9800881Z Creating container.
+2026-04-30T12:33:14.9802146Z Creating pipes for streaming container io.
+2026-04-30T12:33:14.9812251Z Creating stdout named pipe at /podr/container/pipe/fddb03f2961f_fivekapp/stdout_d7196f1229834941a0c0f3b28fdf47e6.
+2026-04-30T12:33:15.0285454Z Successfully created stdout named pipe at: /podr/container/pipe/fddb03f2961f_fivekapp/stdout_d7196f1229834941a0c0f3b28fdf47e6.
+2026-04-30T12:33:15.0290857Z Opening named pipe /podr/container/pipe/fddb03f2961f_fivekapp/stdout_d7196f1229834941a0c0f3b28fdf47e6 for reading in non-blocking mode.
+2026-04-30T12:33:15.0300739Z Successfully opened named pipe: /podr/container/pipe/fddb03f2961f_fivekapp/stdout_d7196f1229834941a0c0f3b28fdf47e6.
+2026-04-30T12:33:15.0310736Z Successfully removed non-blocking flag from /podr/container/pipe/fddb03f2961f_fivekapp/stdout_d7196f1229834941a0c0f3b28fdf47e6.
+2026-04-30T12:33:15.0910087Z Creating stderr named pipe at /podr/container/pipe/fddb03f2961f_fivekapp/stderr_0cfb74349e844d8fbd49117da63beeac.
+2026-04-30T12:33:15.1007631Z Successfully created stderr named pipe at: /podr/container/pipe/fddb03f2961f_fivekapp/stderr_0cfb74349e844d8fbd49117da63beeac.
+2026-04-30T12:33:15.1017905Z Opening named pipe /podr/container/pipe/fddb03f2961f_fivekapp/stderr_0cfb74349e844d8fbd49117da63beeac for reading in non-blocking mode.
+2026-04-30T12:33:15.1203718Z Successfully opened named pipe: /podr/container/pipe/fddb03f2961f_fivekapp/stderr_0cfb74349e844d8fbd49117da63beeac.
+2026-04-30T12:33:15.1402464Z Successfully removed non-blocking flag from /podr/container/pipe/fddb03f2961f_fivekapp/stderr_0cfb74349e844d8fbd49117da63beeac.
+2026-04-30T12:33:15.1416047Z Creating container with image: appsvc/node:22-lts_20260115.4.tuxprod from registry: 10.1.0.4:13209 and fully qualified image name: 10.1.0.4:13209/appsvc/node:22-lts_20260115.4.tuxprod
+2026-04-30T12:33:17.2828927Z Starting container: fddb03f2961f_fivekapp.
+2026-04-30T12:33:17.5349274Z Starting watchers and probes.
+2026-04-30T12:33:17.5355786Z Starting metrics collection.
+2026-04-30T12:33:17.5357041Z Container is running.
+2026-04-30T12:33:17.5358195Z State: Starting, Action: CreatingContainer, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:31:56, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Container fivekapp successfully created and is running., DetailsLevel: INFO
+2026-04-30T12:33:18.0275831Z Container start method finished after 4950 ms.
+2026-04-30T12:33:18.0486666Z State: Starting, Action: InitiatingSiteWarmUpProbe, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:31:56, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Container fivekapp successfully created and is running., DetailsLevel: INFO
+2026-04-30T12:33:18.0489470Z State: Starting, Action: WaitingForSiteWarmUpProbeSuccess, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:31:56, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Pinging warmup path to ensure container is ready to receive requests., DetailsLevel: INFO
+2026-04-30T12:34:24.4055695Z Container has finished running with exit code: 1.
+2026-04-30T12:34:24.4234701Z Container is terminating. Grace period: 5 seconds.
+2026-04-30T12:34:24.4246094Z Stop and delete container. Retry count = 0
+2026-04-30T12:34:24.4250337Z Stopping container: fddb03f2961f_fivekapp.
+2026-04-30T12:34:24.5161369Z Deleting container: fddb03f2961f_fivekapp. Retry count = 0
+2026-04-30T12:34:24.8459039Z Container spec TerminationMessagePolicy  path 
+2026-04-30T12:34:24.8461363Z Container is terminated. Total time elapsed: 422 ms.
+2026-04-30T12:34:24.8462465Z Site container: fivekapp terminated during site startup.
+2026-04-30T12:34:24.8471061Z State: Stopping, Action: CancellingStartup, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:31:56, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:34:24.9072767Z Site startup probe failed after 66.8268254 seconds.
+2026-04-30T12:34:25.1901342Z State: Stopping, Action: CancellingStartup, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:34:25, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:34:25.2174755Z Failed to start site. Revert by stopping site.
+2026-04-30T12:34:25.2177761Z State: Stopping, Action: StoppingSite, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:34:25, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:34:25.2182667Z State: Stopping, Action: StoppingSiteContainers, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:34:25, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:34:25.2182897Z Site: fivekapp stopped.
+2026-04-30T12:34:25.2698110Z State: Stopping, Action: UnmountingVolumes, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:34:25, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:34:25.8556765Z State: Stopping, Action: StoppingSiteNetworks, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:34:25, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:34:26.2480047Z State: Stopped, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:34:25, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site stopped at 04/30/2026 12:34:26 (UTC), DetailsLevel: ERR
+2026-04-30T12:34:26.5801369Z State: Stopped, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:34:25, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site stopped at 04/30/2026 12:34:26 (UTC), DetailsLevel: ERR
+2026-04-30T12:34:30.8297135Z State: Starting, Action: EstablishingSiteNetworks, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:34:25, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site stopped at 04/30/2026 12:34:26 (UTC), DetailsLevel: ERR
+2026-04-30T12:34:33.0233633Z State: Starting, Action: StartingSiteContainers, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:34:25, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site stopped at 04/30/2026 12:34:26 (UTC), DetailsLevel: ERR
+2026-04-30T12:34:33.0234778Z Container start method called.
+2026-04-30T12:34:33.0235333Z State: Starting, Action: PullingImage, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:34:25, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Pulling image 10.1.0.4:13209/appsvc/node:22-lts_20260115.4.tuxprod for fivekapp., DetailsLevel: INFO
+2026-04-30T12:34:33.0236092Z Establishing network.
+2026-04-30T12:34:33.0237052Z Pulling image: appsvc/node:22-lts_20260115.4.tuxprod.
+2026-04-30T12:34:33.6603153Z Container is starting.
+2026-04-30T12:34:33.6604708Z State: Starting, Action: MountingVolumes, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:34:25, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Mounting volumes for fivekapp., DetailsLevel: INFO
+2026-04-30T12:34:33.6605608Z Establishing user namespace if not established already.
+2026-04-30T12:34:33.6606615Z Establishing network if not established already.
+2026-04-30T12:34:33.6607805Z Mounting volumes.
+2026-04-30T12:34:33.6721701Z Nested mountpoint 
+2026-04-30T12:34:33.7800608Z Nested mountpoint volatile/logs
+2026-04-30T12:34:33.8308765Z Nested mountpoint 
+2026-04-30T12:34:33.8528119Z Nested mountpoint 
+2026-04-30T12:34:33.9435442Z Nested mountpoint 
+2026-04-30T12:34:34.5767432Z State: Starting, Action: CreatingContainer, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:34:25, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Finished pulling container image and mounting volumes for fivekapp. Allocatinng the rest of the container resources to finish container creation., DetailsLevel: INFO
+2026-04-30T12:34:34.5768885Z Creating container.
+2026-04-30T12:34:34.5960303Z Creating pipes for streaming container io.
+2026-04-30T12:34:34.5961757Z Creating stdout named pipe at /podr/container/pipe/ccd10069e568_fivekapp/stdout_6df00d43c4684003a8142ecf3e5b6340.
+2026-04-30T12:34:34.5964234Z Successfully created stdout named pipe at: /podr/container/pipe/ccd10069e568_fivekapp/stdout_6df00d43c4684003a8142ecf3e5b6340.
+2026-04-30T12:34:34.5965129Z Opening named pipe /podr/container/pipe/ccd10069e568_fivekapp/stdout_6df00d43c4684003a8142ecf3e5b6340 for reading in non-blocking mode.
+2026-04-30T12:34:34.5966317Z Successfully opened named pipe: /podr/container/pipe/ccd10069e568_fivekapp/stdout_6df00d43c4684003a8142ecf3e5b6340.
+2026-04-30T12:34:34.5967090Z Successfully removed non-blocking flag from /podr/container/pipe/ccd10069e568_fivekapp/stdout_6df00d43c4684003a8142ecf3e5b6340.
+2026-04-30T12:34:34.6173652Z Creating stderr named pipe at /podr/container/pipe/ccd10069e568_fivekapp/stderr_0e2527acf9f54448a6c73ff3b59eae96.
+2026-04-30T12:34:34.6175912Z Successfully created stderr named pipe at: /podr/container/pipe/ccd10069e568_fivekapp/stderr_0e2527acf9f54448a6c73ff3b59eae96.
+2026-04-30T12:34:34.6176785Z Opening named pipe /podr/container/pipe/ccd10069e568_fivekapp/stderr_0e2527acf9f54448a6c73ff3b59eae96 for reading in non-blocking mode.
+2026-04-30T12:34:34.6177738Z Successfully opened named pipe: /podr/container/pipe/ccd10069e568_fivekapp/stderr_0e2527acf9f54448a6c73ff3b59eae96.
+2026-04-30T12:34:34.6178459Z Successfully removed non-blocking flag from /podr/container/pipe/ccd10069e568_fivekapp/stderr_0e2527acf9f54448a6c73ff3b59eae96.
+2026-04-30T12:34:34.6353825Z Creating container with image: appsvc/node:22-lts_20260115.4.tuxprod from registry: 10.1.0.4:13209 and fully qualified image name: 10.1.0.4:13209/appsvc/node:22-lts_20260115.4.tuxprod
+2026-04-30T12:34:35.3150659Z Starting container: ccd10069e568_fivekapp.
+2026-04-30T12:34:35.4632937Z Starting watchers and probes.
+2026-04-30T12:34:35.4831340Z Starting metrics collection.
+2026-04-30T12:34:35.5117698Z Container is running.
+2026-04-30T12:34:35.5119204Z State: Starting, Action: CreatingContainer, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:34:25, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Container fivekapp successfully created and is running., DetailsLevel: INFO
+2026-04-30T12:34:36.0155638Z Container start method finished after 2990 ms.
+2026-04-30T12:34:36.0171348Z State: Starting, Action: InitiatingSiteWarmUpProbe, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:34:25, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Container fivekapp successfully created and is running., DetailsLevel: INFO
+2026-04-30T12:34:36.0272327Z State: Starting, Action: WaitingForSiteWarmUpProbeSuccess, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:34:25, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Pinging warmup path to ensure container is ready to receive requests., DetailsLevel: INFO
+2026-04-30T12:35:19.2265560Z Container has finished running with exit code: 1.
+2026-04-30T12:35:19.2268694Z Container is terminating. Grace period: 5 seconds.
+2026-04-30T12:35:19.2279325Z Stop and delete container. Retry count = 0
+2026-04-30T12:35:19.2280459Z Stopping container: ccd10069e568_fivekapp.
+2026-04-30T12:35:19.3172703Z Deleting container: ccd10069e568_fivekapp. Retry count = 0
+2026-04-30T12:35:19.6491559Z Container spec TerminationMessagePolicy  path 
+2026-04-30T12:35:19.6494243Z Container is terminated. Total time elapsed: 422 ms.
+2026-04-30T12:35:19.6500172Z Site container: fivekapp terminated during site startup.
+2026-04-30T12:35:19.6502835Z State: Stopping, Action: CancellingStartup, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:34:25, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:35:19.6891906Z Site startup probe failed after 43.6207087 seconds.
+2026-04-30T12:35:19.9203200Z State: Stopping, Action: CancellingStartup, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:35:19.9218472Z Failed to start site. Revert by stopping site.
+2026-04-30T12:35:19.9221718Z State: Stopping, Action: StoppingSite, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:35:19.9592661Z State: Stopping, Action: StoppingSiteContainers, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:35:19.9593575Z Site: fivekapp stopped.
+2026-04-30T12:35:19.9720845Z State: Stopping, Action: UnmountingVolumes, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:35:20.4144811Z State: Stopping, Action: StoppingSiteNetworks, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:35:20.8777564Z Site: fivekapp will be blocked for 1 minutes till 04/30/2026 12:36:20
+2026-04-30T12:35:20.8967553Z State: Blocked, Action: StoppingSiteNetworks, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site: fivekapp will be blocked for 1 minutes till 04/30/2026 12:36:20, DetailsLevel: WARN
+2026-04-30T12:35:20.9057583Z State: Stopped, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site stopped at 04/30/2026 12:35:20 (UTC), DetailsLevel: WARN
+2026-04-30T12:35:21.1592072Z State: Stopped, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site stopped at 04/30/2026 12:35:20 (UTC), DetailsLevel: WARN
+2026-04-30T12:35:26.2831930Z State: Blocked, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 04/30/2026 12:36:20, DetailsLevel: WARN
+2026-04-30T12:35:26.2833340Z Start site prohibitted because the site is being blocked.
+2026-04-30T12:35:31.5386435Z State: Blocked, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 04/30/2026 12:36:20, DetailsLevel: WARN
+2026-04-30T12:35:31.5386793Z Start site prohibitted because the site is being blocked.
+2026-04-30T12:35:36.7627650Z State: Blocked, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 04/30/2026 12:36:20, DetailsLevel: WARN
+2026-04-30T12:35:36.7628418Z Start site prohibitted because the site is being blocked.
+2026-04-30T12:35:42.0044383Z State: Blocked, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 04/30/2026 12:36:20, DetailsLevel: WARN
+2026-04-30T12:35:42.0134056Z Start site prohibitted because the site is being blocked.
+2026-04-30T12:35:47.3796412Z State: Blocked, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 04/30/2026 12:36:20, DetailsLevel: WARN
+2026-04-30T12:35:47.3797377Z Start site prohibitted because the site is being blocked.
+2026-04-30T12:35:52.5069639Z State: Blocked, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 04/30/2026 12:36:20, DetailsLevel: WARN
+2026-04-30T12:35:52.5353012Z Start site prohibitted because the site is being blocked.
+2026-04-30T12:35:57.6550895Z State: Blocked, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 04/30/2026 12:36:20, DetailsLevel: WARN
+2026-04-30T12:35:57.6551545Z Start site prohibitted because the site is being blocked.
+2026-04-30T12:36:02.9176801Z State: Blocked, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 04/30/2026 12:36:20, DetailsLevel: WARN
+2026-04-30T12:36:02.9177129Z Start site prohibitted because the site is being blocked.
+2026-04-30T12:36:08.1414238Z State: Blocked, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 04/30/2026 12:36:20, DetailsLevel: WARN
+2026-04-30T12:36:08.1414583Z Start site prohibitted because the site is being blocked.
+2026-04-30T12:36:13.4442998Z State: Blocked, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 04/30/2026 12:36:20, DetailsLevel: WARN
+2026-04-30T12:36:13.4443366Z Start site prohibitted because the site is being blocked.
+2026-04-30T12:36:18.5978410Z State: Blocked, Action: None, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 04/30/2026 12:36:20, DetailsLevel: WARN
+2026-04-30T12:36:18.5978747Z Start site prohibitted because the site is being blocked.
+2026-04-30T12:36:20.8778359Z Site: fivekapp is unblocked.
+2026-04-30T12:36:23.8574396Z State: Starting, Action: EstablishingSiteNetworks, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 04/30/2026 12:36:20, DetailsLevel: WARN
+2026-04-30T12:36:25.7911269Z State: Starting, Action: StartingSiteContainers, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 04/30/2026 12:36:20, DetailsLevel: WARN
+2026-04-30T12:36:25.7913693Z Container start method called.
+2026-04-30T12:36:25.8112356Z State: Starting, Action: PullingImage, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Pulling image 10.1.0.4:13209/appsvc/node:22-lts_20260115.4.tuxprod for fivekapp., DetailsLevel: INFO
+2026-04-30T12:36:25.8189611Z Establishing network.
+2026-04-30T12:36:25.8198303Z Pulling image: appsvc/node:22-lts_20260115.4.tuxprod.
+2026-04-30T12:36:26.2924805Z Container is starting.
+2026-04-30T12:36:26.2926211Z State: Starting, Action: MountingVolumes, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Mounting volumes for fivekapp., DetailsLevel: INFO
+2026-04-30T12:36:26.2927171Z Establishing user namespace if not established already.
+2026-04-30T12:36:26.2927995Z Establishing network if not established already.
+2026-04-30T12:36:26.2929268Z Mounting volumes.
+2026-04-30T12:36:26.2930983Z Nested mountpoint 
+2026-04-30T12:36:26.3327819Z Nested mountpoint volatile/logs
+2026-04-30T12:36:26.3621012Z Nested mountpoint 
+2026-04-30T12:36:26.4933895Z Nested mountpoint 
+2026-04-30T12:36:26.5135290Z Nested mountpoint 
+2026-04-30T12:36:27.0675808Z State: Starting, Action: CreatingContainer, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Finished pulling container image and mounting volumes for fivekapp. Allocatinng the rest of the container resources to finish container creation., DetailsLevel: INFO
+2026-04-30T12:36:27.0676978Z Creating container.
+2026-04-30T12:36:27.0677884Z Creating pipes for streaming container io.
+2026-04-30T12:36:27.0678747Z Creating stdout named pipe at /podr/container/pipe/f589aaebcc8c_fivekapp/stdout_603f617a208a484eb3fdeae5fc8c3632.
+2026-04-30T12:36:27.0680661Z Successfully created stdout named pipe at: /podr/container/pipe/f589aaebcc8c_fivekapp/stdout_603f617a208a484eb3fdeae5fc8c3632.
+2026-04-30T12:36:27.0681488Z Opening named pipe /podr/container/pipe/f589aaebcc8c_fivekapp/stdout_603f617a208a484eb3fdeae5fc8c3632 for reading in non-blocking mode.
+2026-04-30T12:36:27.0682445Z Successfully opened named pipe: /podr/container/pipe/f589aaebcc8c_fivekapp/stdout_603f617a208a484eb3fdeae5fc8c3632.
+2026-04-30T12:36:27.0683200Z Successfully removed non-blocking flag from /podr/container/pipe/f589aaebcc8c_fivekapp/stdout_603f617a208a484eb3fdeae5fc8c3632.
+2026-04-30T12:36:27.0762977Z Creating stderr named pipe at /podr/container/pipe/f589aaebcc8c_fivekapp/stderr_dc19b970cec145c4b3e659ae676cb82d.
+2026-04-30T12:36:27.0765435Z Successfully created stderr named pipe at: /podr/container/pipe/f589aaebcc8c_fivekapp/stderr_dc19b970cec145c4b3e659ae676cb82d.
+2026-04-30T12:36:27.0779538Z Opening named pipe /podr/container/pipe/f589aaebcc8c_fivekapp/stderr_dc19b970cec145c4b3e659ae676cb82d for reading in non-blocking mode.
+2026-04-30T12:36:27.0869133Z Successfully opened named pipe: /podr/container/pipe/f589aaebcc8c_fivekapp/stderr_dc19b970cec145c4b3e659ae676cb82d.
+2026-04-30T12:36:27.0885109Z Successfully removed non-blocking flag from /podr/container/pipe/f589aaebcc8c_fivekapp/stderr_dc19b970cec145c4b3e659ae676cb82d.
+2026-04-30T12:36:27.0971244Z Creating container with image: appsvc/node:22-lts_20260115.4.tuxprod from registry: 10.1.0.4:13209 and fully qualified image name: 10.1.0.4:13209/appsvc/node:22-lts_20260115.4.tuxprod
+2026-04-30T12:36:27.9340397Z Starting container: f589aaebcc8c_fivekapp.
+2026-04-30T12:36:28.0761063Z Starting watchers and probes.
+2026-04-30T12:36:28.0959302Z Starting metrics collection.
+2026-04-30T12:36:28.1144692Z Container is running.
+2026-04-30T12:36:28.1148206Z State: Starting, Action: CreatingContainer, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Container fivekapp successfully created and is running., DetailsLevel: INFO
+2026-04-30T12:36:28.5593790Z Container start method finished after 2767 ms.
+2026-04-30T12:36:28.6183442Z State: Starting, Action: InitiatingSiteWarmUpProbe, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Container fivekapp successfully created and is running., DetailsLevel: INFO
+2026-04-30T12:36:28.6185390Z State: Starting, Action: WaitingForSiteWarmUpProbeSuccess, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Pinging warmup path to ensure container is ready to receive requests., DetailsLevel: INFO
+2026-04-30T12:37:06.6186262Z Container has finished running with exit code: 1.
+2026-04-30T12:37:06.6190350Z Container is terminating. Grace period: 5 seconds.
+2026-04-30T12:37:06.6684912Z Stop and delete container. Retry count = 0
+2026-04-30T12:37:06.6686102Z Stopping container: f589aaebcc8c_fivekapp.
+2026-04-30T12:37:07.5021070Z Deleting container: f589aaebcc8c_fivekapp. Retry count = 0
+2026-04-30T12:37:08.1473533Z Container spec TerminationMessagePolicy  path 
+2026-04-30T12:37:08.1854723Z Container is terminated. Total time elapsed: 1499 ms.
+2026-04-30T12:37:08.1951741Z Site container: fivekapp terminated during site startup.
+2026-04-30T12:37:08.1962780Z State: Stopping, Action: CancellingStartup, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:35:19, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:37:08.2558834Z Site startup probe failed after 39.6193053 seconds.
+2026-04-30T12:37:08.8191690Z State: Stopping, Action: CancellingStartup, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:37:08, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:37:08.8206261Z Failed to start site. Revert by stopping site.
+2026-04-30T12:37:08.8893437Z State: Stopping, Action: StoppingSite, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:37:08, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:37:08.8914249Z State: Stopping, Action: StoppingSiteContainers, LastError: ContainerTimeout, LastErrorTimestamp: 04/30/2026 12:37:08, LastErrorDetails: Container did not start within expected time limit of 230s. Please inspect your container logs for more details., Details: Site container: fivekapp terminated during site startup. Cancelling site startup., DetailsLevel: ERR
+2026-04-30T12:37:08.8914646Z Site: fivekapp stopped.

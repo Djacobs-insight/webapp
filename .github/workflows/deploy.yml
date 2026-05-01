@@ -32,21 +32,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
         with:
           version: 10
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install
-
-      - name: Generate Prisma client
-        run: pnpm exec prisma generate
 
       - name: Lint
         run: pnpm lint
@@ -57,27 +54,34 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
-      - name: Build
+      - name: Build standalone for production
         env:
           NODE_ENV: production
           NEXT_PUBLIC_API_URL: https://${{ secrets.AZURE_WEBAPP_NAME }}.azurewebsites.net
           NEXT_PUBLIC_CDN_URL: ${{ secrets.NEXT_PUBLIC_CDN_URL }}
         run: pnpm build
 
-      - name: Prepare standalone package
+      - name: Assemble standalone package
         run: |
           cp -r public .next/standalone/public
           cp -r .next/static .next/standalone/.next/static
           cp -r src/generated .next/standalone/src/generated
+
+      - name: Create deployment zip
+        run: |
+          cd .next/standalone
+          zip -r ../../deploy.zip . --symlinks
+          echo "Zip size: $(du -sh ../../deploy.zip | cut -f1)"
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: .next/standalone
+          package: deploy.zip
 
       - name: Run production database migrations
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: pnpm exec prisma migrate deploy
+
