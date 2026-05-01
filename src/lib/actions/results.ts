@@ -492,7 +492,7 @@ export async function getResultById(resultId: string) {
       photos: {
         where: { deletedAt: null },
         orderBy: { createdAt: "desc" },
-        select: { id: true, displayUrl: true, thumbnailUrl: true, userId: true },
+        select: { id: true, userId: true },
       },
     },
   });
@@ -511,7 +511,12 @@ export async function getResultById(resultId: string) {
     location: result.location.name,
     finishTimeSecs: result.finishTimeSecs,
     ageGradedPct: result.ageGradedPct,
-    photos: result.photos,
+    photos: result.photos.map((p) => ({
+      id: p.id,
+      userId: p.userId,
+      displayUrl: `/api/photos/${p.id}?size=display`,
+      thumbnailUrl: `/api/photos/${p.id}?size=thumbnail`,
+    })),
   };
 }
 

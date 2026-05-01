@@ -94,14 +94,23 @@ describe("getPhotosForResult", () => {
 
   it("returns photos filtered by deletedAt null", async () => {
     mockAuthenticated();
-    const photos = [{ id: PHOTO_ID, displayUrl: "/d.jpg", thumbnailUrl: "/t.jpg", originalName: null, createdAt: new Date() }];
+    const createdAt = new Date();
+    const photos = [{ id: PHOTO_ID, originalName: null, createdAt }];
     mockPrisma.photo.findMany.mockResolvedValue(photos);
     const result = await getPhotosForResult(RESULT_ID);
-    expect(result).toEqual(photos);
+    expect(result).toEqual([
+      {
+        id: PHOTO_ID,
+        originalName: null,
+        createdAt,
+        displayUrl: `/api/photos/${PHOTO_ID}?size=display`,
+        thumbnailUrl: `/api/photos/${PHOTO_ID}?size=thumbnail`,
+      },
+    ]);
     expect(mockPrisma.photo.findMany).toHaveBeenCalledWith({
       where: { resultId: RESULT_ID, deletedAt: null },
       orderBy: { createdAt: "desc" },
-      select: { id: true, displayUrl: true, thumbnailUrl: true, originalName: true, createdAt: true },
+      select: { id: true, originalName: true, createdAt: true },
     });
   });
 });
@@ -211,8 +220,8 @@ describe("getFamilyPhotos", () => {
     expect(result).toEqual([
       {
         id: PHOTO_ID,
-        displayUrl: "/d.jpg",
-        thumbnailUrl: "/t.jpg",
+        displayUrl: `/api/photos/${PHOTO_ID}?size=display`,
+        thumbnailUrl: `/api/photos/${PHOTO_ID}?size=thumbnail`,
         originalName: "run.jpg",
         createdAt,
         runnerName: "Bob",

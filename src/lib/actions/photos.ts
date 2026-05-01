@@ -4,6 +4,18 @@ import { prisma } from "../prisma";
 import { auth } from "../auth/auth";
 
 /**
+ * Build client-facing photo URLs that go through the auth-protected
+ * /api/photos/[id] proxy. The DB stores raw blob paths (e.g. /uploads/...)
+ * which only the server can resolve; clients must use these proxy URLs.
+ */
+function photoUrls(photoId: string) {
+  return {
+    displayUrl: `/api/photos/${photoId}?size=display`,
+    thumbnailUrl: `/api/photos/${photoId}?size=thumbnail`,
+  };
+}
+
+/**
  * Creates a Photo record with API-based URLs.
  * SECURITY: URLs point to /api/photos/[id] which enforces authentication & authorization.
  */
@@ -46,17 +58,16 @@ export async function getPhotosForResult(resultId: string) {
   const session = await auth();
   if (!session?.user?.id) return [];
 
-  return prisma.photo.findMany({
+  const photos = await prisma.photo.findMany({
     where: { resultId, deletedAt: null },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
-      displayUrl: true,
-      thumbnailUrl: true,
       originalName: true,
       createdAt: true,
     },
   });
+  return photos.map((p) => ({ ...p, ...photoUrls(p.id) }));
 }
 
 export async function softDeletePhoto(photoId: string) {
@@ -143,8 +154,7 @@ export async function getFamilyPhotos(): Promise<GalleryPhoto[]> {
     const yyyy = d.getUTCFullYear();
     return {
       id: p.id,
-      displayUrl: p.displayUrl,
-      thumbnailUrl: p.thumbnailUrl,
+      ...photoUrls(p.id),
       originalName: p.originalName,
       createdAt: p.createdAt,
       runnerName: p.user.name ?? "Unknown",
