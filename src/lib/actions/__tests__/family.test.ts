@@ -159,11 +159,15 @@ describe("acceptInvite", () => {
     expect(result).toEqual({ success: false, error: "Invite link is invalid." });
   });
 
-  it("returns error when invite already used", async () => {
+  it("allows reuse: previously used invite still accepts new members", async () => {
     mockAuthenticated();
     mockPrisma.invite.findUnique.mockResolvedValue({ ...validInvite, usedAt: new Date() });
+    mockIsFamilyAtLimit.mockResolvedValue(false);
+    mockPrisma.familyMember.findFirst.mockResolvedValue(null);
+    mockPrisma.$transaction.mockResolvedValue([]);
     const result = await acceptInvite({ token: "valid-token" });
-    expect(result).toEqual({ success: false, error: "This invite has already been used." });
+    expect(result).toEqual({ success: true, familyId: FAMILY_ID, familyName: "Test Family" });
+    expect(mockPrisma.$transaction).toHaveBeenCalled();
   });
 
   it("returns error when invite expired", async () => {

@@ -12,7 +12,6 @@ type InviteInfo = {
   invitedByName: string | null;
   memberCount: number;
   expired: boolean;
-  used: boolean;
 };
 
 export default function InvitePage({ params }: { params: Promise<{ token: string }> }) {
@@ -41,7 +40,6 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
           invitedByName: invite.invitedBy.name,
           memberCount: invite.family.members.length,
           expired: invite.expiresAt < new Date(),
-          used: !!invite.usedAt,
         });
       } catch {
         setNotFound(true);
@@ -79,7 +77,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
     if (autoJoinAttempted) return;
     if (authLoading || pageLoading) return;
     if (!account || !inviteInfo) return;
-    if (inviteInfo.expired || inviteInfo.used) return;
+    if (inviteInfo.expired) return;
     setAutoJoinAttempted(true);
     void handleJoin();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -110,8 +108,8 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
     );
   }
 
-  const { familyName, invitedByName, memberCount, expired, used } = inviteInfo!;
-  const isInvalid = expired || used;
+  const { familyName, invitedByName, memberCount, expired } = inviteInfo!;
+  const isInvalid = expired;
 
   return (
     <main className="min-h-screen bg-warm-white flex flex-col items-center justify-center px-6 pb-10">
@@ -122,12 +120,10 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
 
         {isInvalid ? (
           <>
-            <h1 className="text-2xl font-bold text-charcoal">Invite {used ? "already used" : "expired"}</h1>
+            <h1 className="text-2xl font-bold text-charcoal">Invite expired</h1>
             <p className="text-charcoal/60 text-sm">
-              {used
-                ? "This invite link has already been used."
-                : "This invite link expired after 7 days."}
-              {" "}Ask <strong>{invitedByName ?? "the family admin"}</strong> to send you a new one.
+              This invite link expired after 7 days.{" "}
+              Ask <strong>{invitedByName ?? "the family admin"}</strong> to send you a new one.
             </p>
             <Link href="/">
               <Button className="mt-4 bg-charcoal/10 text-charcoal rounded-full px-6 py-3 font-semibold">

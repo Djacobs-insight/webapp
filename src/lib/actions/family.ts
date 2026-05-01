@@ -137,7 +137,8 @@ export async function acceptInvite(formData: {
   });
 
   if (!invite) return { success: false, error: "Invite link is invalid." };
-  if (invite.usedAt) return { success: false, error: "This invite has already been used." };
+  // Invites are reusable until the family hits its member limit or the link
+  // expires, so we no longer treat `usedAt` as a hard block.
   if (invite.expiresAt < new Date()) return { success: false, error: "This invite has expired." };
 
   const atLimit = await isFamilyAtLimit(invite.familyId);
@@ -156,9 +157,12 @@ export async function acceptInvite(formData: {
     return { success: false, error: "You are already a member of this family." };
   }
 
-  // Transactionally: mark invite used + add member
+  // Stamp `usedAt` on first use for audit/UX, but keep the invite reusable.
   await prisma.$transaction([
-    prisma.invite.update({ where: { id: invite.id }, data: { usedAt: new Date() } }),
+    prisma.invite.update({
+      where: { id: invite.id },
+      data: { usedAt: invite.usedAt ?? new Date() },
+    }),
     prisma.familyMember.create({ data: { familyId: invite.familyId, userId, role: "member" } }),
   ]);
 

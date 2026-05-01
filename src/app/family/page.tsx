@@ -221,6 +221,9 @@ export default function FamilyPage() {
                     {copied ? "Copied!" : "Copy"}
                   </button>
                 </div>
+                <p className="text-xs text-gray-500">
+                  Share this one link with anyone you want to invite — it can be used by multiple family members until the link expires (7 days).
+                </p>
                 <Button
                   type="button"
                   variant="secondary"
