@@ -18,12 +18,14 @@
 # =============================================================================
 
 param(
-    [string]$AppName       = "fivekapp",          # Must be globally unique → becomes <AppName>.azurewebsites.net
-    [string]$ResourceGroup = "fivekapp-rg",
-    [string]$Location      = "australiaeast",     # Change to your preferred region
-    [string]$DbAdminUser   = "fivekadmin",
-    [string]$DbAdminPass   = "",                  # Leave blank to be prompted securely
-    [string]$DbName        = "iteration1"
+    [string]$AppName        = "fivekapp",          # Must be globally unique → becomes <AppName>.azurewebsites.net
+    [string]$ResourceGroup  = "fivekapp-rg",
+    [string]$Location       = "australiaeast",     # Change to your preferred region
+    [string]$DbAdminUser    = "fivekadmin",
+    [string]$DbAdminPass    = "",                  # Leave blank to be prompted securely
+    [string]$DbName         = "iteration1",
+    [string]$TenantId       = "",                  # Target Azure AD tenant ID (leave blank to use current login)
+    [string]$SubscriptionId = ""                   # Target subscription ID (leave blank to use default)
 )
 
 # ── Validate Azure CLI ─────────────────────────────────────────────────────────
@@ -32,13 +34,30 @@ if (-not (Get-Command az -ErrorAction SilentlyContinue)) {
     exit 1
 }
 
-# Check login
+# Check login — target specific tenant if provided
 $account = az account show 2>$null | ConvertFrom-Json
 if (-not $account) {
     Write-Host "Not logged in. Running az login..." -ForegroundColor Yellow
-    az login
+    if ($TenantId) {
+        az login --tenant $TenantId
+    } else {
+        az login
+    }
+    $account = az account show | ConvertFrom-Json
+} elseif ($TenantId -and $account.tenantId -ne $TenantId) {
+    Write-Host "Current login is tenant $($account.tenantId). Re-authenticating to target tenant $TenantId..." -ForegroundColor Yellow
+    az login --tenant $TenantId
     $account = az account show | ConvertFrom-Json
 }
+
+# Switch to the target subscription if specified
+if ($SubscriptionId) {
+    Write-Host "Setting active subscription to: $SubscriptionId" -ForegroundColor Yellow
+    az account set --subscription $SubscriptionId
+    $account = az account show | ConvertFrom-Json
+}
+
+Write-Host "Using tenant:       $($account.tenantId)" -ForegroundColor Cyan
 Write-Host "Using subscription: $($account.name) ($($account.id))" -ForegroundColor Cyan
 
 # Prompt for DB password if not provided
@@ -63,6 +82,20 @@ Write-Host "DB Server:      $DbServerName"
 Write-Host "Storage:        $StorageAccountName"
 Write-Host "CDN:            $CdnEndpointName.azureedge.net"
 Write-Host ""
+
+# ── 0. Register required resource providers ───────────────────────────────────
+Write-Host "[0/9] Registering required resource providers..." -ForegroundColor Yellow
+$providers = @("Microsoft.DBforPostgreSQL", "Microsoft.Web", "Microsoft.Storage", "Microsoft.Cdn")
+foreach ($p in $providers) {
+    $state = az provider show --namespace $p --query "registrationState" --output tsv 2>$null
+    if ($state -ne "Registered") {
+        Write-Host "      Registering $p ..." -ForegroundColor Yellow
+        az provider register --namespace $p --wait --output none
+        Write-Host "      [OK] $p registered" -ForegroundColor Green
+    } else {
+        Write-Host "      [OK] $p already registered" -ForegroundColor Green
+    }
+}
 
 # ── 1. Resource Group ──────────────────────────────────────────────────────────
 Write-Host "[1/9] Creating resource group..." -ForegroundColor Yellow
@@ -237,27 +270,44 @@ Write-Host "Your app URL: $AppUrl" -ForegroundColor Cyan
 Write-Host "CDN endpoint: $CdnEndpointUrl" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "--- Add these to GitHub Secrets for the deploy workflow ---" -ForegroundColor Yellow
-Write-Host ""
 Write-Host "AZURE_WEBAPP_NAME=$AppName"
-Write-Host "AZURE_WEBAPP_PUBLISH_PROFILE=<download from App Service portal → Get publish profile>"
+Write-Host "AZURE_WEBAPP_PUBLISH_PROFILE=<download from App Service portal, Get publish profile>"
+Write-Host "DATABASE_URL=$DatabaseUrl"
+Write-Host "NEXT_PUBLIC_CDN_URL=$CdnEndpointUrl"
 if (-not $AuthSecret) {
     Write-Host ""
     Write-Host "--- Still needed in App Service settings (not set above) ---" -ForegroundColor Yellow
     Write-Host "AUTH_SECRET=<run: openssl rand -base64 32>"
 }
 Write-Host ""
+Write-Host "--- Entra External ID (B2C) --- MUST be re-registered in the new tenant ---" -ForegroundColor Yellow
+Write-Output @"
+1. In the new tenant Azure portal:
+   Entra ID, App registrations, New registration
+   Add redirect URI: $AppUrl/api/auth/callback/azure-ad-b2c
+2. Create a B2C user flow named: B2C_1_signup_signin
+3. Set these GitHub Secrets (and App Service settings):
+   NEXT_PUBLIC_AZURE_B2C_TENANT_NAME=<new-tenant-name>
+   NEXT_PUBLIC_AZURE_B2C_CLIENT_ID=<new-app-client-id>
+   NEXT_PUBLIC_AZURE_B2C_SIGNUP_SIGNIN_POLICY=B2C_1_signup_signin
+"@
+Write-Host ""
 Write-Host "--- Optional OAuth providers (add via App Service settings) ---" -ForegroundColor Yellow
-Write-Host "AUTH_GOOGLE_ID=<from Google Cloud Console>"
-Write-Host "AUTH_GOOGLE_SECRET=<from Google Cloud Console>"
-Write-Host "AUTH_FACEBOOK_ID=<from Facebook Developer Console>"
-Write-Host "AUTH_FACEBOOK_SECRET=<from Facebook Developer Console>"
+Write-Output @"
+AUTH_GOOGLE_ID=<from Google Cloud Console>
+AUTH_GOOGLE_SECRET=<from Google Cloud Console>
+AUTH_FACEBOOK_ID=<from Facebook Developer Console>
+AUTH_FACEBOOK_SECRET=<from Facebook Developer Console>
+"@
 Write-Host ""
 Write-Host "--- Next steps ---" -ForegroundColor Cyan
-Write-Host "1. Run the database migration against production:"
-Write-Host "   `$env:DATABASE_URL='$DatabaseUrl'"
-Write-Host "   pnpm exec prisma migrate deploy"
-Write-Host ""
-Write-Host "2. Download publish profile and add to GitHub Secret AZURE_WEBAPP_PUBLISH_PROFILE:"
-Write-Host "   https://portal.azure.com -> $AppName -> Get publish profile"
-Write-Host ""
-Write-Host "3. Push to main branch - deploy.yml will automatically deploy to App Service."
+Write-Output @"
+1. Run the database migration against production:
+   Set-Item -Path Env:DATABASE_URL -Value '$DatabaseUrl'
+   pnpm exec prisma migrate deploy
+
+2. Download publish profile and add to GitHub Secret AZURE_WEBAPP_PUBLISH_PROFILE:
+   https://portal.azure.com  ->  $AppName  ->  Get publish profile
+
+3. Push to main branch - deploy.yml will automatically deploy to App Service.
+"@
